@@ -1,13 +1,43 @@
-[gd_scene load_steps=2 format=3 uid="uid://ccobhykhhbabj"]
+[gd_scene load_steps=4 format=3 uid="uid://ccobhykhhbabj"]
 
+[ext_resource type="Script" uid="uid://u64p0om2qyto" path="res://GameController.cs" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://d3u7c6qcwh0ua" path="res://Board/board.tscn" id="1_ig7tw"]
 
-[node name="Main" type="Node3D"]
+[sub_resource type="LabelSettings" id="LabelSettings_h2yge"]
+font_size = 42
+
+[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator")]
+script = ExtResource("1_0xm2m")
+turnIndicator = NodePath("UI/Turn")
 
 [node name="Board" parent="." instance=ExtResource("1_ig7tw")]
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.1578652, 0.9874607, 0, -0.9874607, 0.1578652, 0, 10.712958, 2.595564)
+transform = Transform3D(1, 0, 0, 0, 0.1578652, 0.9874607, 0, -0.9874607, 0.1578652, 0, 12.092275, 1.5970135)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8651514, 0.43734786, -0.24543816, 0, 0.48939762, 0.8720608, 0.50151074, -0.7544646, 0.42340302, -11.701553, 11.273396, 0)
+light_energy = 2.0
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Turn" type="Label" parent="UI"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -125.5
+offset_top = 30.0
+offset_right = 125.5
+offset_bottom = 92.99999
+grow_horizontal = 2
+text = "Sente's Turn"
+label_settings = SubResource("LabelSettings_h2yge")

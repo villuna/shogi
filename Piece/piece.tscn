@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=4 uid="uid://bfgl7kuav6736"]
+[gd_scene load_steps=6 format=4 uid="uid://bfgl7kuav6736"]
 
 [ext_resource type="PackedScene" uid="uid://b3femtnx0vcqp" path="res://Piece/piece.glb" id="1_4uort"]
+[ext_resource type="Texture2D" uid="uid://d36jfnpdauc6a" path="res://Piece/Characters/Character1.png" id="2_csrfs"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4uort"]
+albedo_color = Color(0.9019982, 0.6006589, 0.44824493, 1)
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_csrfs"]
 _surfaces = [{
@@ -41,3 +43,10 @@ shadow_mesh = SubResource("ArrayMesh_csrfs")
 [node name="Piece" parent="." index="0"]
 transform = Transform3D(0.5, 0, 0, 0, 0.49986672, 0.011544326, 0, -0.011544326, 0.49986672, 0, 0, 0)
 mesh = SubResource("ArrayMesh_qksr6")
+
+[node name="FrontDecal" type="Decal" parent="Piece" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25025833, -0.105725095)
+size = Vector3(2, 0.20776367, 2)
+texture_albedo = ExtResource("2_csrfs")
+upper_fade = 1e-05
+lower_fade = 0.0026922622
