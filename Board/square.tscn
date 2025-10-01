@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://24oelv35rhtk"]
+
+[ext_resource type="Texture2D" uid="uid://c16bf3751vcg0" path="res://Board/square.png" id="1_2oypv"]
+
+[node name="Square" type="Decal"]
+size = Vector3(1.6, 0.05, 1.6)
+texture_albedo = ExtResource("1_2oypv")
+lower_fade = 0.0019037194
