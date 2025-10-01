@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=4 uid="uid://bfgl7kuav6736"]
+
+[ext_resource type="PackedScene" uid="uid://b3femtnx0vcqp" path="res://Piece/piece.glb" id="1_4uort"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4uort"]
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_csrfs"]
+_surfaces = [{
+"aabb": AABB(-1, -0.25230974, -1.344211, 2, 0.5046195, 2.344211),
+"format": 34896613377,
+"index_count": 60,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAACAAEAAwAEAAEABQAAAAIAAwAAAAUABAAGAAIABQACAAYAAwAHAAQAAwAFAAcABwAIAAQACAAGAAQABwAJAAgACAAKAAYACQAKAAgACwAFAAYABwAFAAsACwAGAAoABwALAAkACQALAAoA"),
+"name": "Material.001",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 12,
+"vertex_data": PackedByteArray("AAAAAP//AACMG0bjliUAAAAA/////wAAjBu4HJYlAAD/f0bjAAAAAP9/AAD//wAA/3//////AAD/f7gcAAAAAHLkRuOWJQAAcuS4HJYlAAD///////8AAP//AAD//wAA")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_qksr6"]
+resource_name = "piece_Cube_001"
+_surfaces = [{
+"aabb": AABB(-1, -0.25230974, -1.344211, 2, 0.5046195, 2.344211),
+"attribute_data": PackedByteArray("/1////+f/7//n////1//v/9f/5//n/9//5//n/9f/3//X/9//5//P/+f/3//X/8//1//H/+fAAD/n/8f/18AAP9f/z//n/8//z//f/9f/z//X/9//z//P/+//3//3/8//9//f/+//z//n/9//7//P/+//3//n/8//x//f/8//z//P/9//x//P/9f/7//n/+f/5//v/9f/58="),
+"format": 34896613399,
+"index_count": 60,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADAAPAA0AEAAMAA4AEAAOABEAEgATABQAEgAVABMAFgAXABgAFgAZABcAGgAbABwAGgAdABsAHgAfACAAHgAhAB8AIgAjACQAIgAlACMA"),
+"material": SubResource("StandardMaterial3D_4uort"),
+"name": "Material.001",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 38,
+"vertex_data": PackedByteArray("AAAAAP//5deMG0bjliXl1wAA/////+XXjBu4HJYl5df/f7gcAAAh9HLkRuOWJSH0/39G4wAAIfRy5LgcliUh9HLkuByWJeXX////////5ddy5EbjliXl1///AAD//+XX/38AAP///78AAP//////v/9///////+/AAAAAP///7///wAA////v/////////+//3+4HAAA0cH//wAA//8lwXLkuByWJcjC/38AAP//EcH/f0bjAAAu+AAA/////4H9jBtG45YlJfT/f//////Y/3LkRuOWJcr2/3//////Ff3/f0bjAAAl9P///////9j/jBu4HJYlGsL/fwAA//8swf9/uBwAAMjCAAAAAP//EcGMG7gcliUh9P9/RuMAACH0jBtG45YlIfT/f7gcAAAh9NTT1NPU09TT1NPU09TT1NPtOe057TntOe057TntOe05KiwqLCosKiwqLCosKiwqLP///////////////////////////////3UNEZuVBKOJvhJypVAAW38ZiMG8doKYvyaMtrrWf8HA88ODCaHA7AJHxScMwkApAN4emnA4C5t6cyVBbaQAUIARxhHGEcYRxhHGEcYRxhHG")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_csrfs")
+
+[node name="Piece" instance=ExtResource("1_4uort")]
+
+[node name="Piece" parent="." index="0"]
+transform = Transform3D(0.5, 0, 0, 0, 0.49986672, 0.011544326, 0, -0.011544326, 0.49986672, 0, 0, 0)
+mesh = SubResource("ArrayMesh_qksr6")
