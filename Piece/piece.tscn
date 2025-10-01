@@ -1,7 +1,16 @@
-[gd_scene load_steps=6 format=4 uid="uid://bfgl7kuav6736"]
+[gd_scene load_steps=15 format=4 uid="uid://bfgl7kuav6736"]
 
 [ext_resource type="PackedScene" uid="uid://b3femtnx0vcqp" path="res://Piece/piece.glb" id="1_4uort"]
-[ext_resource type="Texture2D" uid="uid://d36jfnpdauc6a" path="res://Piece/Characters/Character1.png" id="2_csrfs"]
+[ext_resource type="Texture2D" uid="uid://d36jfnpdauc6a" path="res://Piece/Characters/Pawn.png" id="2_csrfs"]
+[ext_resource type="Script" uid="uid://gtrl5dnq8lma" path="res://Piece/Piece.cs" id="2_qksr6"]
+[ext_resource type="Texture2D" uid="uid://hyodr7unm8us" path="res://Piece/Characters/Bishop.png" id="4_tyxr6"]
+[ext_resource type="Texture2D" uid="uid://bb5t1q0gcum3e" path="res://Piece/Characters/Rook.png" id="5_v5ten"]
+[ext_resource type="Texture2D" uid="uid://85h25eqb1wso" path="res://Piece/Characters/Lance.png" id="6_om761"]
+[ext_resource type="Texture2D" uid="uid://1lat30fr1jwo" path="res://Piece/Characters/Knight.png" id="7_uta0o"]
+[ext_resource type="Texture2D" uid="uid://lu5x00f0cbyk" path="res://Piece/Characters/Silver.png" id="8_8lin0"]
+[ext_resource type="Texture2D" uid="uid://dyj8fg1yeu62s" path="res://Piece/Characters/Gold.png" id="9_dixhy"]
+[ext_resource type="Texture2D" uid="uid://0pmt4tor8lc3" path="res://Piece/Characters/King.png" id="10_327wi"]
+[ext_resource type="Texture2D" uid="uid://ck4ftc0am2vo2" path="res://Piece/Characters/King2.png" id="11_w7rsm"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4uort"]
 albedo_color = Color(0.9019982, 0.6006589, 0.44824493, 1)
@@ -38,7 +47,10 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_csrfs")
 
-[node name="Piece" instance=ExtResource("1_4uort")]
+[node name="Piece" node_paths=PackedStringArray("FaceDecal") instance=ExtResource("1_4uort")]
+script = ExtResource("2_qksr6")
+FaceSprites = Array[Texture2D]([ExtResource("2_csrfs"), ExtResource("4_tyxr6"), ExtResource("5_v5ten"), ExtResource("6_om761"), ExtResource("7_uta0o"), ExtResource("8_8lin0"), ExtResource("9_dixhy"), ExtResource("10_327wi"), ExtResource("11_w7rsm")])
+FaceDecal = NodePath("Piece/FrontDecal")
 
 [node name="Piece" parent="." index="0"]
 transform = Transform3D(0.5, 0, 0, 0, 0.49986672, 0.011544326, 0, -0.011544326, 0.49986672, 0, 0, 0)

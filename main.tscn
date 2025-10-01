@@ -13,7 +13,7 @@ turnIndicator = NodePath("UI/Turn")
 [node name="Board" parent="." instance=ExtResource("1_ig7tw")]
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.1578652, 0.9874607, 0, -0.9874607, 0.1578652, 0, 12.092275, 1.5970135)
+transform = Transform3D(1, 0, 0, 0, 0.0764059, 0.9970768, 0, -0.9970768, 0.0764059, 0, 11.182576, 0.38703632)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8651514, 0.43734786, -0.24543816, 0, 0.48939762, 0.8720608, 0.50151074, -0.7544646, 0.42340302, -11.701553, 11.273396, 0)
