@@ -1,6 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://d3u7c6qcwh0ua"]
+[gd_scene load_steps=6 format=3 uid="uid://d3u7c6qcwh0ua"]
 
 [ext_resource type="Script" uid="uid://e24dsunvx6hx" path="res://Board/Board.cs" id="1_psm7c"]
+[ext_resource type="PackedScene" uid="uid://24oelv35rhtk" path="res://Board/Square.tscn" id="2_ghvr1"]
+[ext_resource type="PackedScene" uid="uid://bfgl7kuav6736" path="res://Piece/Piece.tscn" id="3_74xf4"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_psm7c"]
 albedo_color = Color(0.85, 0.55547506, 0.3145, 1)
@@ -12,6 +14,8 @@ size = Vector3(14, 0.7, 14)
 
 [node name="Board" type="Node3D"]
 script = ExtResource("1_psm7c")
+squareScene = ExtResource("2_ghvr1")
+pieceScene = ExtResource("3_74xf4")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_8l818")

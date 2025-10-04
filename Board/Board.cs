@@ -3,16 +3,16 @@ using System;
 
 public partial class Board : Node3D
 {
-    private PackedScene squareScene;
-    private PackedScene pieceScene;
+    [Export]
+    public PackedScene squareScene;
+    [Export]
+    public PackedScene pieceScene;
     private float pieceY = 0.464f;
     private float squareY = 0.374f;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        squareScene = GD.Load<PackedScene>("res://Board/square.tscn");
-        pieceScene = GD.Load<PackedScene>("res://Piece/piece.tscn");
         // Create the tile decals on the board
         for (int i = 0; i < 9; i++)
         {
