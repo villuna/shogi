@@ -1,3 +1,5 @@
+#nullable enable
+
 using Godot;
 using Godot.Collections;
 
@@ -16,9 +18,9 @@ public enum PieceType
 public partial class Piece : Node3D
 {
     [Export]
-    public Array<Texture2D> FaceSprites;
+    public required Array<Texture2D> FaceSprites;
     [Export]
-    public Decal FaceDecal;
+    public required Decal FaceDecal;
 
     public void SetupPiece(PieceType piece, Player player)
     {

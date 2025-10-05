@@ -1,20 +1,23 @@
+#nullable enable
+
 using Godot;
 using System.Collections.Generic;
 
 public partial class Board : Node3D
 {
+    // Signal that gets sent to the board every time a square is clicked
     [Signal]
     public delegate void SquareClickedEventHandler(int x, int y);
 
     [Export]
-    public PackedScene squareScene;
+    public required PackedScene squareScene;
     [Export]
-    public PackedScene pieceScene;
+    public required PackedScene pieceScene;
 
     // Empty child node that is the parent of all the pieces. This exists so we can easily destroy
     // all the pieces when we want to reset the board.
     [Export]
-    public Node3D piecesNode;
+    public required Node3D piecesNode;
 
     // Arrays containing references to the piece/square at a given coordinate. Basically a map
     // between coordinates and nodes.
@@ -47,33 +50,40 @@ public partial class Board : Node3D
         }
     }
 
-    // Sets up the board to the initial state of a shogi game
+    // Sets up the board to the initial state of a shogi game.
     public void SetupBoard(GameController.PieceData?[,] board)
     {
+        // Destroy any existing pieces
+        foreach (Node n in piecesNode.GetChildren())
+        {
+            n.QueueFree();
+        }
+
+        // Set up the board as described by the given model
         for (int x = 0; x < 9; x++)
         {
             for (int y = 0; y < 9; y++)
             {
-                PlacePiece(board[x, y], x, y);
+                if (board[x, y] is GameController.PieceData data)
+                {
+                    PlacePiece(data, x, y);
+                }
             }
         }
     }
 
-    private void PlacePiece(GameController.PieceData? pieceData, int x, int y)
+    private void PlacePiece(GameController.PieceData data, int x, int y)
     {
-        if (pieceData is GameController.PieceData data)
-        {
-            var piece = (Piece)pieceScene.Instantiate();
-            piece.SetupPiece(data.piece, data.player);
+        var piece = (Piece)pieceScene.Instantiate();
+        piece.SetupPiece(data.piece, data.player);
 
-            if (data.player == Player.Sente)
-            {
-                piece.RotateY(Mathf.Pi);
-            }
-            piece.Position = new Vector3(6 - 1.5f * x, pieceY, -6 + 1.5f * y);
-            pieces[x, y] = piece;
-            piecesNode.AddChild(piece);
+        if (data.player == Player.Sente)
+        {
+            piece.RotateY(Mathf.Pi);
         }
+        piece.Position = new Vector3(6 - 1.5f * x, pieceY, -6 + 1.5f * y);
+        pieces[x, y] = piece;
+        piecesNode.AddChild(piece);
     }
 
     // Highlights the given squares (and unhighlights any others)
