@@ -12,11 +12,16 @@ emission = Color(0.92, 0.72833335, 0.46, 1)
 material = SubResource("StandardMaterial3D_psm7c")
 size = Vector3(14, 0.7, 14)
 
-[node name="Board" type="Node3D"]
+[node name="Board" type="Node3D" node_paths=PackedStringArray("piecesNode")]
 script = ExtResource("1_psm7c")
 squareScene = ExtResource("2_ghvr1")
 pieceScene = ExtResource("3_74xf4")
+piecesNode = NodePath("Pieces")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_8l818")
 skeleton = NodePath("../..")
+
+[node name="Squares" type="Node3D" parent="."]
+
+[node name="Pieces" type="Node3D" parent="."]

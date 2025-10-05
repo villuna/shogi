@@ -7,16 +7,16 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_2oypv"]
 size = Vector3(1.6, 0.01, 1.6)
 
-[node name="Square" type="Node3D" node_paths=PackedStringArray("selectionSprite")]
+[node name="Square" type="Node3D" node_paths=PackedStringArray("highlightSprite")]
 script = ExtResource("1_pu4se")
-selectionSprite = NodePath("SelectionSprite")
+highlightSprite = NodePath("HighlightSprite")
 
 [node name="FrameDecal" type="Decal" parent="."]
 size = Vector3(1.6, 0.05, 1.6)
 texture_albedo = ExtResource("1_2oypv")
 lower_fade = 0.0019037194
 
-[node name="SelectionSprite" type="Sprite3D" parent="."]
+[node name="HighlightSprite" type="Sprite3D" parent="."]
 transform = Transform3D(10, 0, 0, 0, -4.371139e-07, -10, 0, 10, -4.371139e-07, 0, 0, 0)
 visible = false
 modulate = Color(0.5566676, 0.8723281, 0.9723256, 0.80784315)

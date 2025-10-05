@@ -8,7 +8,7 @@ public partial class Square : Node3D
     public int CoordY { get; set; }
 
     [Export]
-    public Sprite3D selectionSprite;
+    public Sprite3D highlightSprite;
 
     [Signal]
     public delegate void ClickedEventHandler(int x, int y);
@@ -19,6 +19,11 @@ public partial class Square : Node3D
         {
             EmitSignal(SignalName.Clicked, CoordX, CoordY);
         }
+    }
+
+    public void Highlight(bool highlighted)
+    {
+        highlightSprite.Visible = highlighted;
     }
 
     private void OnMouseDetectorMouseEntered()

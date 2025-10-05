@@ -1,37 +1,89 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class Board : Node3D
 {
+    [Signal]
+    public delegate void SquareClickedEventHandler(int x, int y);
+
     [Export]
     public PackedScene squareScene;
     [Export]
     public PackedScene pieceScene;
+
+    // Empty child node that is the parent of all the pieces. This exists so we can easily destroy
+    // all the pieces when we want to reset the board.
+    [Export]
+    public Node3D piecesNode;
+
+    // Arrays containing references to the piece/square at a given coordinate. Basically a map
+    // between coordinates and nodes.
+    //
+    // The squares array will be fully populated, but the pieces array will be sparse since there
+    // are inherrently fewer pieces than squares.
+    private Piece[,] pieces = new Piece[9, 9];
+    private Square[,] squares = new Square[9, 9];
+
     private float pieceY = 0.464f;
     private float squareY = 0.374f;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        // Create the tile decals on the board
+        // Create the tiles on the board
         for (int i = 0; i < 9; i++)
         {
             for (int j = 0; j < 9; j++)
             {
-                var tile = (Square)squareScene.Instantiate();
-                tile.CoordX = j;
-                tile.CoordY = i;
-                tile.Position = new Vector3(6 - 1.5f * j, squareY, -6 + 1.5f * i);
-                tile.Clicked += OnSquareClicked;
-                AddChild(tile);
+                var square = (Square)squareScene.Instantiate();
+                // The square needs to know its own coordinate to send signals to the controller
+                square.CoordX = j;
+                square.CoordY = i;
+                square.Position = new Vector3(6 - 1.5f * j, squareY, -6 + 1.5f * i);
+                square.Clicked += OnSquareClicked;
+                squares[j, i] = square;
+                AddChild(square);
             }
         }
+    }
+
+    // Sets up the board to the initial state of a shogi game
+    public void ResetBoard()
+    {
+        // Destroy all the existing child pieces and recreate them
+        foreach (Node n in piecesNode.GetChildren())
+        {
+            n.QueueFree();
+        }
+
         SetupPieces();
+    }
+
+    // Highlights the given squares (and unhighlights any others)
+    public void HighlightSquares(IEnumerable<(int, int)> coords)
+    {
+        UnhighlightAllSquares();
+
+        foreach ((int x, int y) in coords)
+        {
+            squares[x, y].Highlight(true);
+        }
+    }
+
+    // Sets all squares to be unhighlighted
+    public void UnhighlightAllSquares()
+    {
+        foreach (Square s in squares)
+        {
+            s.Highlight(false);
+        }
     }
 
     private void OnSquareClicked(int x, int y)
     {
-        GD.Print("Clicked on tile (" + x + ", " + y + ")");
+        // Propagate up to the game controller
+        EmitSignal(SignalName.SquareClicked, x, y);
     }
 
     private void SetupPieces()
@@ -82,6 +134,7 @@ public partial class Board : Node3D
             piece.RotateY(Mathf.Pi);
         }
         piece.Position = new Vector3(6 - 1.5f * x, pieceY, -6 + 1.5f * y);
-        AddChild(piece);
+        pieces[x, y] = piece;
+        piecesNode.AddChild(piece);
     }
 }
