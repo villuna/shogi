@@ -18,15 +18,15 @@ public enum Player
 public partial class GameController : Node3D
 {
     [Export]
-    public Label turnIndicator;
+    public required Label turnIndicator;
     [Export]
-    public Board board;
+    public required Board board;
 
     // -- Board Model -- //
     // The structs defined below are data types used for the model of the game board.
 
     // Data type representing a piece owned by a player
-    struct PieceData
+    public struct PieceData
     {
         public PieceType piece;
         public bool promoted;
@@ -55,7 +55,7 @@ public partial class GameController : Node3D
     {
         SetupPiecesForPlayer(Player.Sente);
         SetupPiecesForPlayer(Player.Gote);
-        board.ResetBoard();
+        board.SetupBoard(boardModel);
     }
 
     private void SetupPiecesForPlayer(Player player)
@@ -96,9 +96,8 @@ public partial class GameController : Node3D
 
     private void OnBoardSquareClicked(int x, int y)
     {
-        GD.Print("Square (" + x + ", " + y + ") has been clicked");
         // If the player clicks on one of its own pieces, select that piece
-        if (boardModel[x, y] != null && boardModel[x, y]?.player == currentPlayer)
+        if (boardModel[x, y] is PieceData piece && piece.player == currentPlayer)
         {
             selected = (x, y);
             board.HighlightSquares([(x, y)]);

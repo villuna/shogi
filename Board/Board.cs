@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.Collections.Generic;
 
 public partial class Board : Node3D
@@ -49,15 +48,32 @@ public partial class Board : Node3D
     }
 
     // Sets up the board to the initial state of a shogi game
-    public void ResetBoard()
+    public void SetupBoard(GameController.PieceData?[,] board)
     {
-        // Destroy all the existing child pieces and recreate them
-        foreach (Node n in piecesNode.GetChildren())
+        for (int x = 0; x < 9; x++)
         {
-            n.QueueFree();
+            for (int y = 0; y < 9; y++)
+            {
+                PlacePiece(board[x, y], x, y);
+            }
         }
+    }
 
-        SetupPieces();
+    private void PlacePiece(GameController.PieceData? pieceData, int x, int y)
+    {
+        if (pieceData is GameController.PieceData data)
+        {
+            var piece = (Piece)pieceScene.Instantiate();
+            piece.SetupPiece(data.piece, data.player);
+
+            if (data.player == Player.Sente)
+            {
+                piece.RotateY(Mathf.Pi);
+            }
+            piece.Position = new Vector3(6 - 1.5f * x, pieceY, -6 + 1.5f * y);
+            pieces[x, y] = piece;
+            piecesNode.AddChild(piece);
+        }
     }
 
     // Highlights the given squares (and unhighlights any others)
@@ -84,57 +100,5 @@ public partial class Board : Node3D
     {
         // Propagate up to the game controller
         EmitSignal(SignalName.SquareClicked, x, y);
-    }
-
-    private void SetupPieces()
-    {
-        // Place the pieces on the board
-        SetupPiecesForSide(Player.Sente);
-        SetupPiecesForSide(Player.Gote);
-    }
-
-    private void SetupPiecesForSide(Player player)
-    {
-        for (int x = 0; x < 9; x++)
-        {
-            PlacePiece(PieceType.Pawn, player, x, 2);
-        }
-
-        PlacePiece(PieceType.Rook, player, 7, 1);
-        PlacePiece(PieceType.Bishop, player, 1, 1);
-
-        PlacePiece(PieceType.Lance, player, 0, 0);
-        PlacePiece(PieceType.Lance, player, 8, 0);
-
-        PlacePiece(PieceType.Knight, player, 1, 0);
-        PlacePiece(PieceType.Knight, player, 7, 0);
-
-        PlacePiece(PieceType.Silver, player, 2, 0);
-        PlacePiece(PieceType.Silver, player, 6, 0);
-
-        PlacePiece(PieceType.Gold, player, 3, 0);
-        PlacePiece(PieceType.Gold, player, 5, 0);
-
-        PlacePiece(PieceType.King, player, 4, 0);
-    }
-
-    private void PlacePiece(PieceType type, Player player, int x, int y)
-    {
-        if (player == Player.Gote)
-        {
-            x = 9 - x - 1;
-            y = 9 - y - 1;
-        }
-
-        var piece = (Piece)pieceScene.Instantiate();
-        piece.SetupPiece(type, player);
-
-        if (player == Player.Sente)
-        {
-            piece.RotateY(Mathf.Pi);
-        }
-        piece.Position = new Vector3(6 - 1.5f * x, pieceY, -6 + 1.5f * y);
-        pieces[x, y] = piece;
-        piecesNode.AddChild(piece);
     }
 }
