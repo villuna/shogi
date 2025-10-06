@@ -111,7 +111,7 @@ public partial class GameController : Node3D
             {
                 selected = (x, y);
 
-                var movableSquares = MovableSquares(x, y);
+                var movableSquares = MovableSquares(x, y, true);
                 movableSquares.Add((x, y));
                 board.HighlightSquares(movableSquares);
             }
@@ -121,7 +121,7 @@ public partial class GameController : Node3D
             if (selected is (int, int) s)
             {
                 int sx = s.Item1, sy = s.Item2;
-                var movableSquares = MovableSquares(sx, sy);
+                var movableSquares = MovableSquares(sx, sy, true);
 
                 if (movableSquares.Contains((x, y)))
                 {
@@ -159,8 +159,11 @@ public partial class GameController : Node3D
     // Given the coordinate of a piece on the board, returns which squares it can move to given
     // the current board setup. Throws an exception if there is no piece on the board.
     //
+    // If `disallowCheck` is enabled, this function won't return moves that would put the current
+    // player's king into check. Otherwise it skips this check entirely.
+    //
     // TODO: handle promoted pieces
-    private List<(int, int)> MovableSquares(int x, int y)
+    private List<(int, int)> MovableSquares(int x, int y, bool disallowCheck)
     {
         if (boardModel[x, y] is PieceData piece)
         {
@@ -294,12 +297,73 @@ public partial class GameController : Node3D
                 throw new ArgumentException();
             }
 
+            if (disallowCheck)
+            {
+                // Now we have to go through each possible move and filter out those which would put
+                // the king in check. This has the added benefit of filtering out all moves that don't
+                // move the king out of check if it is in it currently.
+                for (int i = squares.Count - 1; i >= 0; i--)
+                {
+                    // Since we are removing squares we have to iterate backwards over the list so as
+                    // to not invalidate indexes.
+
+                    // Temporarily move the piece to that square, then check if the king is in check.
+                    // Then move the pieces back to where they were. Kind of a weird way of doing it
+                    // but it works well and avoids cloning the model.
+                    (int x2, int y2) = squares[i];
+
+                    var tmp = boardModel[x2, y2];
+                    boardModel[x2, y2] = boardModel[x, y];
+                    boardModel[x, y] = null;
+
+                    bool inCheck = PlayersKingInCheck(currentPlayer);
+
+                    if (inCheck)
+                    {
+                        squares.RemoveAt(i);
+                    }
+
+                    boardModel[x, y] = boardModel[x2, y2];
+                    boardModel[x2, y2] = tmp;
+                }
+            }
+
             return squares;
         }
         else
         {
             throw new ArgumentOutOfRangeException();
         }
+    }
+
+    private bool PlayersKingInCheck(Player player)
+    {
+        // The way this is implemented is not very performant.
+        // In the future I might like to pre-calculate all the squares reachable by each side's
+        // pieces at the start of each turn so we don't have to keep doing it like this.
+        // But this is good enough for now.
+        for (int x = 0; x < 9; x++)
+        {
+            for (int y = 0; y < 9; y++)
+            {
+                // Loop over every enemy piece
+                if (boardModel[x, y] is PieceData p && p.player != player)
+                {
+                    var squares = MovableSquares(x, y, false);
+                    foreach ((int x2, int y2) in squares)
+                    {
+                        if (boardModel[x2, y2] is PieceData p2 && p2.player == player
+                            && p2.piece == PieceType.King)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        GD.Print("Not in check");
+        return false;
     }
 
     private bool HasEnemyPiece(int x, int y, Player player)
