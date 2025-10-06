@@ -3,6 +3,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public enum Player
 {
@@ -123,13 +124,36 @@ public partial class GameController : Node3D
                 var movableSquares = MovableSquares(sx, sy);
 
                 if (movableSquares.Contains((x, y)))
-                    // TODO move the selected piece to x, y
+                {
+                    MovePiece(s, (x, y));
                     NextTurn();
+                }
             }
 
             selected = null;
             board.UnhighlightAllSquares();
         }
+    }
+
+    private void MovePiece((int x, int y) from, (int x, int y) to)
+    {
+        Debug.Assert(boardModel[from.x, from.y] != null);
+        Debug.Assert(boardModel[from.x, from.y]?.player == currentPlayer);
+        Debug.Assert(CanMoveTo(to.x, to.y, currentPlayer));
+
+        // TODO place captured pieces in holding so they can be placed again
+        bool isCapturing = boardModel[to.x, to.y] != null;
+
+        // Update the model
+        boardModel[to.x, to.y] = boardModel[from.x, from.y];
+        boardModel[from.x, from.y] = null;
+
+        // Update the view
+        if (isCapturing)
+        {
+            board.RemovePiece(to);
+        }
+        board.MovePiece(from, to);
     }
 
     // Given the coordinate of a piece on the board, returns which squares it can move to given
