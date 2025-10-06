@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 public partial class Square : Node3D
 {
@@ -16,9 +15,7 @@ public partial class Square : Node3D
     public override void _UnhandledInput(InputEvent e)
     {
         if (e.IsActionPressed("click") && mouseEntered)
-        {
             EmitSignal(SignalName.Clicked, CoordX, CoordY);
-        }
     }
 
     public void Highlight(bool highlighted)

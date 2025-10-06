@@ -65,9 +65,7 @@ public partial class GameController : Node3D
     private void SetupPiecesForPlayer(Player player)
     {
         for (int x = 0; x < 9; x++)
-        {
             PlacePiece(PieceType.Pawn, player, x, 2);
-        }
 
         PlacePiece(PieceType.Rook, player, 7, 1);
         PlacePiece(PieceType.Bishop, player, 1, 1);
@@ -125,10 +123,8 @@ public partial class GameController : Node3D
                 var movableSquares = MovableSquares(sx, sy);
 
                 if (movableSquares.Contains((x, y)))
-                {
                     // TODO move the selected piece to x, y
                     NextTurn();
-                }
             }
 
             selected = null;
@@ -153,9 +149,7 @@ public partial class GameController : Node3D
                 int step = piece.player == Player.Sente ? 1 : -1;
 
                 if (CanMoveTo(x, y + step, piece.player))
-                {
                     squares.Add((x, y + step));
-                }
             }
             else if (piece.piece == PieceType.Bishop)
             {
@@ -172,9 +166,7 @@ public partial class GameController : Node3D
                         squares.Add((x2, y2));
 
                         if (HasEnemyPiece(x2, y2, piece.player))
-                        {
                             break;
-                        }
 
                         x2 += dx;
                         y2 += dy;
@@ -196,9 +188,7 @@ public partial class GameController : Node3D
                         squares.Add((x2, y2));
 
                         if (HasEnemyPiece(x2, y2, piece.player))
-                        {
                             break;
-                        }
 
                         x2 += dx;
                         y2 += dy;
@@ -216,9 +206,7 @@ public partial class GameController : Node3D
                     squares.Add((x, y2));
 
                     if (HasEnemyPiece(x, y2, piece.player))
-                    {
                         break;
-                    }
 
                     y2 += step;
                 }
@@ -229,12 +217,8 @@ public partial class GameController : Node3D
                 // can "jump" over other pieces
                 int step = piece.player == Player.Sente ? 1 : -1;
                 foreach ((int dx, int dy) in new[] { (1, 2 * step), (-1, 2 * step) })
-                {
                     if (CanMoveTo(x + dx, y + dy, piece.player))
-                    {
                         squares.Add((x + dx, y + dy));
-                    }
-                }
             }
             else if (piece.piece == PieceType.Silver)
             {
@@ -248,12 +232,8 @@ public partial class GameController : Node3D
                 // Like this, where x is the piece and 0 is a square the piece can move to.
                 int step = piece.player == Player.Sente ? 1 : -1;
                 foreach ((int dx, int dy) in new[] { (-1, -1), (1, -1), (-1, 1), (1, 1), (0, step) })
-                {
                     if (CanMoveTo(x + dx, y + dy, piece.player))
-                    {
                         squares.Add((x + dx, y + dy));
-                    }
-                }
             }
             else if (piece.piece == PieceType.Gold)
             {
@@ -267,12 +247,8 @@ public partial class GameController : Node3D
                 // Like this, where x is the piece and 0 is a square the piece can move to.
                 int step = piece.player == Player.Sente ? 1 : -1;
                 foreach ((int dx, int dy) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, step), (1, step) })
-                {
                     if (CanMoveTo(x + dx, y + dy, piece.player))
-                    {
                         squares.Add((x + dx, y + dy));
-                    }
-                }
             }
             else if (piece.piece == PieceType.King)
             {
@@ -282,13 +258,10 @@ public partial class GameController : Node3D
                     for (int dy = -1; dy <= 1; dy++)
                     {
                         if (dx == 0 && dy == 0)
-                        {
                             continue;
-                        }
+
                         if (CanMoveTo(x + dx, y + dy, piece.player))
-                        {
                             squares.Add((x + dx, y + dy));
-                        }
                     }
                 }
             }
