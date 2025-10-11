@@ -5,14 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-public enum Player
-{
-    // The player who goes first
-    Sente,
-    // The player who goes second
-    Gote,
-}
-
 // GameController - This class is the Controller in the Model/View/Controller framework.
 //
 // The Piece and Square nodes in the scene are the view, displaying to the user the current state
@@ -29,22 +21,17 @@ public partial class GameController : Node3D
     // -- Board Model -- //
     // The structs defined below are data types used for the model of the game board.
 
-    // Data type representing a piece owned by a player
-    public struct PieceData
-    {
-        public PieceType piece;
-        public bool promoted;
-        public Player player;
-
-        public PieceData(PieceType piece, Player player, bool promoted)
-        {
-            this.piece = piece;
-            this.player = player;
-            this.promoted = promoted;
-        }
-    }
-
     private PieceData?[,] boardModel = new PieceData?[9, 9];
+
+    // Each player has a "bench" of pieces they've captured. For each player we store how many
+    // of a certain piece they stored in their bench.
+    //
+    // This is a multidimensional array where the row index is the player and the column index is
+    // the piece type. So, if Gote has 2 captured rooks in their storage then
+    // `benches[Player.Gote, PieceType.Rook] == 2`.
+    private int[,] benches = new int[2, 7];
+
+    // The coordinate of the piece that is currently selected.
     private (int, int)? selected = null;
 
     // The player whose turn it is.
@@ -141,8 +128,13 @@ public partial class GameController : Node3D
         Debug.Assert(boardModel[from.x, from.y]?.player == currentPlayer);
         Debug.Assert(CanMoveTo(to.x, to.y, currentPlayer));
 
-        // TODO place captured pieces in holding so they can be placed again
-        bool isCapturing = boardModel[to.x, to.y] != null;
+        // Hold onto the captured piece to update the benches
+        bool isCapturing = false;
+        if (boardModel[to.x, to.y] is PieceData p)
+        {
+            isCapturing = true;
+            benches[(int)currentPlayer, (int)p.piece] += 1;
+        }
 
         // Update the model
         boardModel[to.x, to.y] = boardModel[from.x, from.y];
@@ -151,7 +143,7 @@ public partial class GameController : Node3D
         // Update the view
         if (isCapturing)
         {
-            board.RemovePiece(to);
+            board.CapturePiece(to, currentPlayer);
         }
         board.MovePiece(from, to);
     }
@@ -362,7 +354,6 @@ public partial class GameController : Node3D
             }
         }
 
-        GD.Print("Not in check");
         return false;
     }
 

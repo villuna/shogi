@@ -3,18 +3,6 @@
 using Godot;
 using Godot.Collections;
 
-public enum PieceType
-{
-    Pawn = 0,
-    Bishop,
-    Rook,
-    Lance,
-    Knight,
-    Silver,
-    Gold,
-    King
-}
-
 public partial class Piece : Node3D
 {
     [Export]

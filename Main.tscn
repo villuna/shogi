@@ -14,7 +14,8 @@ board = NodePath("Board")
 [node name="Board" parent="." instance=ExtResource("2_r0du0")]
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-1, 8.6593104e-08, 1.2015787e-08, 2.398696e-08, 0.13960524, 0.9902073, 8.406764e-08, 0.9902073, -0.13960522, 0, 11.17751, -1.5794029)
+transform = Transform3D(-1, 8.65931e-08, 1.201578e-08, 2.398696e-08, 0.13960524, 0.9902073, 8.406764e-08, 0.9902073, -0.13960524, -0.009483337, 20.366653, -2.4853282)
+fov = 44.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.744671, -0.50004846, 0.4420595, -0.105889566, 0.56542575, 0.8179738, -0.65897834, -0.65593094, 0.3681063, 11.645351, 13.85367, 3.9813251)
@@ -41,10 +42,10 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -125.5
-offset_top = 30.0
-offset_right = 125.5
-offset_bottom = 92.99999
+offset_left = -125.0
+offset_top = 11.0
+offset_right = 126.0
+offset_bottom = 73.99999
 grow_horizontal = 2
 text = "Sente's Turn"
 label_settings = SubResource("LabelSettings_h2yge")

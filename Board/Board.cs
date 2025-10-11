@@ -15,6 +15,15 @@ public partial class Board : Node3D
     [Export]
     public required PackedScene pieceScene;
 
+    [Export]
+    public required Bench senteBench;
+    [Export]
+    public required Bench goteBench;
+
+    // Simply holds senteBench and goteBench in an array so we can refer to them by their player
+    // IDs as defined by the Player enum.
+    private Bench[] benches = new Bench[2];
+
     // Empty child node that is the parent of all the pieces. This exists so we can easily destroy
     // all the pieces when we want to reset the board.
     [Export]
@@ -34,6 +43,10 @@ public partial class Board : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
+        // Set up the benches array
+        benches[(int)Player.Gote] = goteBench;
+        benches[(int)Player.Sente] = senteBench;
+
         // Create the tiles on the board
         for (int i = 0; i < 9; i++)
         {
@@ -58,7 +71,7 @@ public partial class Board : Node3D
     }
 
     // Sets up the board to the initial state of a shogi game.
-    public void SetupBoard(GameController.PieceData?[,] board)
+    public void SetupBoard(PieceData?[,] board)
     {
         // Destroy any existing pieces
         foreach (Node n in piecesNode.GetChildren())
@@ -67,7 +80,7 @@ public partial class Board : Node3D
         // Set up the board as described by the given model
         for (int x = 0; x < 9; x++)
             for (int y = 0; y < 9; y++)
-                if (board[x, y] is GameController.PieceData data)
+                if (board[x, y] is PieceData data)
                     PlacePiece(data, x, y);
     }
 
@@ -91,10 +104,8 @@ public partial class Board : Node3D
         pieces[from.x, from.y] = null;
     }
 
-    // Removes a piece from the board.
-    // TODO: Currently this just deletes the piece but I would like to move it into some holding
-    // bay so it can be dropped by the capturing player (it wouldn't be shogi otherwise!!!)
-    public void RemovePiece((int x, int y) coord)
+    // Captures a piece from the board and puts it in the capturing player's bench
+    public void CapturePiece((int x, int y) coord, Player capturingPlayer)
     {
         if (pieces[coord.x, coord.y] is Piece p)
         {
@@ -107,7 +118,7 @@ public partial class Board : Node3D
         }
     }
 
-    private void PlacePiece(GameController.PieceData data, int x, int y)
+    private void PlacePiece(PieceData data, int x, int y)
     {
         var piece = (Piece)pieceScene.Instantiate();
         piece.SetupPiece(data.piece, data.player);
