@@ -107,10 +107,6 @@ public partial class GameController : Node3D
 
     private void OnBoardSquareClicked(int x, int y)
     {
-        // If there is a piece on the bench currently selected, it will be deselected no matter
-        // what.
-        DeselectBenchPiece();
-
         if (board[x, y] is PieceData piece && piece.player == currentPlayer)
         {
             // If this piece is already selected we should deselect it, else we should select it.
@@ -129,8 +125,10 @@ public partial class GameController : Node3D
         }
         else
         {
+            GD.Print("Else branch");
             if (selected is (int, int) s)
             {
+                GD.Print("Piece is selected");
                 // Attempt to move the selected piece to the square the player clicked on
                 int sx = s.Item1, sy = s.Item2;
                 var movableSquares = MovableSquares(sx, sy, true);
@@ -141,22 +139,42 @@ public partial class GameController : Node3D
                     NextTurn();
                 }
             }
-            else if (selectedBenchPiece is PieceType piece2)
+            else if (selectedBenchPiece is PieceType dropPiece && board[x, y] == null)
             {
+                GD.Print("Bench piece is indeed selected");
                 // Attempt to place the selected piece on the square the player clicked on
-
-                // The piece has to be called piece2 because Microsoft broke C#'s pattern matching
-                // scope rules and now everything sucks
-
-                if (benches[(int)currentPlayer, (int)piece2] > 0)
+                if (benches[(int)currentPlayer, (int)dropPiece] > 0)
                 {
-                    // TODO
+                    GD.Print("We have enough pieces");
+                    var droppableSquares = DroppableSquares(dropPiece);
+
+                    if (droppableSquares.Contains((x, y)))
+                    {
+                        GD.Print("We can drop the piece");
+                        DropPiece(dropPiece, (x, y));
+                        NextTurn();
+                    }
                 }
             }
 
-            DeselectBenchPiece();
             DeselectBoardPiece();
         }
+
+        // If we click on a board square and a piece on the bench was already selected it should be
+        // deselected no matter what. This is after the big if statement because we need to know
+        // what bench piece *was* selected in case we want to drop it onto the board.
+        DeselectBenchPiece();
+    }
+
+    private void DropPiece(PieceType piece, (int x, int y) coord)
+    {
+        Debug.Assert(benches[(int)currentPlayer, (int)piece] > 0);
+        Debug.Assert(board[coord.x, coord.y] == null);
+        var data = new PieceData(piece, currentPlayer, false);
+        board[coord.x, coord.y] = data;
+        boardNode.PlacePiece(data, coord.x, coord.y);
+        benches[(int)currentPlayer, (int)piece]--;
+        benchNodes[(int)currentPlayer].UpdateCountForPiece(piece, benches[(int)currentPlayer, (int)piece]);
     }
 
     private void OnBenchSquareClicked(int pieceId, int playerId)
@@ -509,6 +527,9 @@ public partial class GameController : Node3D
     // Finishes the current player's turn and starts the next player's turn.
     private void NextTurn()
     {
+        DeselectBenchPiece();
+        DeselectBoardPiece();
+
         if (currentPlayer == Player.Sente)
         {
             currentPlayer = Player.Gote;

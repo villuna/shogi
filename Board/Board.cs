@@ -105,8 +105,10 @@ public partial class Board : Node3D
         }
     }
 
-    private void PlacePiece(PieceData data, int x, int y)
+    // Places a piece on the board at the given position
+    public void PlacePiece(PieceData data, int x, int y)
     {
+        Debug.Assert(pieces[x, y] == null);
         var piece = (Piece)pieceScene.Instantiate();
         piece.SetupPiece(data.piece, data.player);
 
