@@ -9,7 +9,11 @@ public partial class Piece : Node3D
     [Export]
     public required Array<Texture2D> FaceTextures;
     [Export]
+    public required Array<Texture2D> BackTextures;
+    [Export]
     public required Sprite3D FaceSprite;
+    [Export]
+    public required Sprite3D BackSprite;
     [Export]
     public required Label3D CountLabel;
     [Export]
@@ -22,10 +26,12 @@ public partial class Piece : Node3D
             // The gote king (prince) has a different sprite from the sente king, which is stored
             // at the end of the array
             FaceSprite.Texture = FaceTextures[(int)piece + 1];
+            // Also the king has no back sprite
         }
         else
         {
             FaceSprite.Texture = FaceTextures[(int)piece];
+            BackSprite.Texture = BackTextures[(int)piece];
         }
     }
 
@@ -60,5 +66,11 @@ public partial class Piece : Node3D
     public void RotateCountLabel()
     {
         CountLabelPivot.RotateY(Mathf.Pi);
+    }
+
+    // Flips the piece over so it shows its promoted (back) face
+    public void Promote()
+    {
+        RotateZ(Mathf.Pi);
     }
 }

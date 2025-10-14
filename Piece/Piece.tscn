@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=4 uid="uid://bfgl7kuav6736"]
+[gd_scene load_steps=19 format=4 uid="uid://bfgl7kuav6736"]
 
 [ext_resource type="PackedScene" uid="uid://b3femtnx0vcqp" path="res://Blender/piece.glb" id="1_2ucto"]
 [ext_resource type="Script" uid="uid://gtrl5dnq8lma" path="res://Piece/Piece.cs" id="2_2ln7c"]
@@ -11,6 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://dyj8fg1yeu62s" path="res://Piece/Characters/Gold.png" id="9_skph3"]
 [ext_resource type="Texture2D" uid="uid://0pmt4tor8lc3" path="res://Piece/Characters/King.png" id="10_xhhv1"]
 [ext_resource type="Texture2D" uid="uid://ck4ftc0am2vo2" path="res://Piece/Characters/King2.png" id="11_b0amm"]
+[ext_resource type="Texture2D" uid="uid://lt3xdag6v560" path="res://Piece/Characters/PromotedPawn.png" id="12_2ln7c"]
+[ext_resource type="Texture2D" uid="uid://cej37ic5tkk0d" path="res://Piece/Characters/PromotedBishop.png" id="13_fgxok"]
+[ext_resource type="Texture2D" uid="uid://b3kynpdqjwfta" path="res://Piece/Characters/PromotedRook.png" id="14_dg785"]
+[ext_resource type="Texture2D" uid="uid://b2psuulapo0k2" path="res://Piece/Characters/PromotedGold.png" id="15_t0ydq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4uort"]
 albedo_color = Color(0.9019982, 0.6006589, 0.44824493, 1)
@@ -47,23 +51,28 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_csrfs")
 
-[node name="Piece" node_paths=PackedStringArray("FaceSprite", "CountLabel", "CountLabelPivot") instance=ExtResource("1_2ucto")]
+[node name="Piece" node_paths=PackedStringArray("FaceSprite", "BackSprite", "CountLabel", "CountLabelPivot") instance=ExtResource("1_2ucto")]
 script = ExtResource("2_2ln7c")
 FaceTextures = Array[Texture2D]([ExtResource("3_kfgxo"), ExtResource("4_mmewd"), ExtResource("5_fgxok"), ExtResource("6_dg785"), ExtResource("7_t0ydq"), ExtResource("8_p62a2"), ExtResource("9_skph3"), ExtResource("10_xhhv1"), ExtResource("11_b0amm")])
+BackTextures = Array[Texture2D]([ExtResource("12_2ln7c"), ExtResource("13_fgxok"), ExtResource("14_dg785"), ExtResource("15_t0ydq"), ExtResource("15_t0ydq"), ExtResource("15_t0ydq"), null, null, null])
 FaceSprite = NodePath("Piece/FrontSprite")
+BackSprite = NodePath("Piece/BackSprite")
 CountLabel = NodePath("Piece/CountLabelPivot/CountLabel")
 CountLabelPivot = NodePath("Piece/CountLabelPivot")
 
 [node name="Piece" parent="." index="0"]
-transform = Transform3D(0.5, 0, 0, 0, 0.49986672, 0.011544326, 0, -0.011544326, 0.49986672, 0, 0, 0)
+transform = Transform3D(0.5, 0, 0, 0, 0.49982867, 0.013088475, 0, -0.013088475, 0.49982867, 0, 0, 0)
 mesh = SubResource("ArrayMesh_qksr6")
 
 [node name="FrontSprite" type="Sprite3D" parent="Piece" index="0"]
-transform = Transform3D(13.999736, -0.0041537583, 0.0859054, -0.08598284, -0.35301602, 13.995285, -0.0019862354, -13.995548, -0.35303485, 0.055804133, 0.23448785, -0.017269691)
+transform = Transform3D(14, 0, 0, 0, -0.3664775, 13.995204, 0, -13.995203, -0.36647752, 0.055804133, 0.23448785, -0.017269691)
 texture_filter = 0
-texture = ExtResource("3_kfgxo")
 
-[node name="CountLabelPivot" type="Node3D" parent="Piece" index="1"]
+[node name="BackSprite" type="Sprite3D" parent="Piece" index="1"]
+transform = Transform3D(-13.999999, 1.2239188e-06, 0, 3.2038475e-08, 0.36647746, -13.995205, -1.2234995e-06, -13.995202, -0.36647752, 0.055804133, -0.24697569, -0.028389003)
+texture_filter = 0
+
+[node name="CountLabelPivot" type="Node3D" parent="Piece" index="2"]
 
 [node name="CountLabel" type="Label3D" parent="Piece/CountLabelPivot" index="0"]
 transform = Transform3D(2, 0, 0, 0, 0.04617722, 1.9994669, 0, -1.9994669, 0.04617722, 0.86267483, 0.29090974, 0.49780288)
