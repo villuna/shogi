@@ -185,7 +185,8 @@ public partial class GameController : Node3D
             {
                 selectedBenchPiece = piece;
                 benchNodes[playerId].HighlightPiece(piece);
-                // TODO Highlight all squares where we can drop a piece
+                List<(int, int)> droppableSquares = DroppableSquares(piece);
+                boardNode.HighlightSquares(droppableSquares);
             }
             else
             {
@@ -400,6 +401,69 @@ public partial class GameController : Node3D
         {
             throw new ArgumentOutOfRangeException();
         }
+    }
+
+    // Returns a list of all the squares where the current player can drop a certain piece.
+    // The player can drop a piece on any square in the board, with one exception - a player is
+    // not allowed to have two or more pawns on the same file.
+    //
+    // Check rules apply so this function will not return moves that would leave the current
+    // player's king in check.
+    private List<(int, int)> DroppableSquares(PieceType piece)
+    {
+        // Can't drop a king
+        if (piece == PieceType.King)
+            throw new ArgumentOutOfRangeException();
+
+        var squares = new List<(int, int)>();
+
+        // Build up the list of squares column by column, so if we run into overlapping pawns we
+        // can filter out the entire column.
+        for (int x = 0; x < 9; x++)
+        {
+            var squaresInColumn = new List<(int, int)>();
+
+            for (int y = 0; y < 9; y++)
+            {
+                PieceData? pieceData = board[x, y];
+
+                if (pieceData is PieceData pd)
+                {
+                    // If the piece we are placing is a pawn and we find a pawn in this column from
+                    // the current player, we need to discard this column and move on.
+                    if (piece == PieceType.Pawn && pd.piece == PieceType.Pawn
+                        && currentPlayer == pd.player)
+                    {
+                        squaresInColumn.Clear();
+                        break;
+                    }
+                }
+                else
+                {
+                    squaresInColumn.Add((x, y));
+                }
+            }
+
+            squares.AddRange(squaresInColumn);
+        }
+
+        // Filter out squares that would leave the king in check
+        for (int i = squares.Count - 1; i >= 0; i--)
+        {
+            // Place the piece down, check if the king is in check, and then reset the board
+            // back to how it was.
+            (int x, int y) square = squares[i];
+            Debug.Assert(board[square.x, square.y] == null);
+
+            board[square.x, square.y] = new PieceData(piece, currentPlayer, false);
+
+            if (PlayersKingInCheck(currentPlayer))
+                squares.RemoveAt(i);
+
+            board[square.x, square.y] = null;
+        }
+
+        return squares;
     }
 
     private bool PlayersKingInCheck(Player player)
