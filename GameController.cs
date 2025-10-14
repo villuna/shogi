@@ -33,8 +33,11 @@ public partial class GameController : Node3D
     // `benches[Player.Gote, PieceType.Rook] == 2`.
     private int[,] benches = new int[2, 7];
 
-    // The coordinate of the piece that is currently selected.
+    // The coordinate of the piece that is currently selected (or null if no board square is
+    // selected).
     private (int, int)? selected = null;
+    // The currently selected piece on the current player's bench (or null if none is selected).
+    private PieceType? selectedBenchPiece = null;
 
     // The player whose turn it is.
     private Player currentPlayer = Player.Sente;
@@ -90,15 +93,30 @@ public partial class GameController : Node3D
         board[x, y] = new PieceData(piece, player, false);
     }
 
+    private void DeselectBenchPiece()
+    {
+        selectedBenchPiece = null;
+        benchNodes[(int)currentPlayer].UnhighlightAllSquares();
+    }
+
+    private void DeselectBoardPiece()
+    {
+        selected = null;
+        boardNode.UnhighlightAllSquares();
+    }
+
     private void OnBoardSquareClicked(int x, int y)
     {
+        // If there is a piece on the bench currently selected, it will be deselected no matter
+        // what.
+        DeselectBenchPiece();
+
         if (board[x, y] is PieceData piece && piece.player == currentPlayer)
         {
             // If this piece is already selected we should deselect it, else we should select it.
             if (selected == (x, y))
             {
-                selected = null;
-                boardNode.UnhighlightAllSquares();
+                DeselectBoardPiece();
             }
             else
             {
@@ -113,6 +131,7 @@ public partial class GameController : Node3D
         {
             if (selected is (int, int) s)
             {
+                // Attempt to move the selected piece to the square the player clicked on
                 int sx = s.Item1, sy = s.Item2;
                 var movableSquares = MovableSquares(sx, sy, true);
 
@@ -122,15 +141,59 @@ public partial class GameController : Node3D
                     NextTurn();
                 }
             }
+            else if (selectedBenchPiece is PieceType piece2)
+            {
+                // Attempt to place the selected piece on the square the player clicked on
 
-            selected = null;
-            boardNode.UnhighlightAllSquares();
+                // The piece has to be called piece2 because Microsoft broke C#'s pattern matching
+                // scope rules and now everything sucks
+
+                if (benches[(int)currentPlayer, (int)piece2] > 0)
+                {
+                    // TODO
+                }
+            }
+
+            DeselectBenchPiece();
+            DeselectBoardPiece();
         }
     }
 
-    private void OnBenchSquareClicked(int piece, int player)
+    private void OnBenchSquareClicked(int pieceId, int playerId)
     {
-        GD.Print("Clicked " + (PieceType)piece + " on player " + (Player)player + "'s board");
+        Player player = (Player)playerId;
+        PieceType piece = (PieceType)pieceId;
+
+        // Ignore any clicks that are on the enemy's bench
+        if (player != currentPlayer)
+        {
+            return;
+        }
+
+        // If a piece is currently selected on the board it should be deselected
+        DeselectBoardPiece();
+
+        if (selectedBenchPiece is PieceType sp && sp == piece)
+        {
+            // Clicking on the selected piece should deselect it
+            DeselectBenchPiece();
+        }
+        else
+        {
+            // Only select pieces that are actually stored in the bench
+            if (pieceId != 7 && benches[playerId, pieceId] > 0)
+            {
+                selectedBenchPiece = piece;
+                benchNodes[playerId].HighlightPiece(piece);
+                // TODO Highlight all squares where we can drop a piece
+            }
+            else
+            {
+                // If they clicked on an empty square on the bench we should deselect the bench
+                // piece too.
+                DeselectBenchPiece();
+            }
+        }
     }
 
     private void MovePiece((int x, int y) from, (int x, int y) to)
