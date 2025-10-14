@@ -1,16 +1,18 @@
-[gd_scene load_steps=5 format=3 uid="uid://doe371xg6v7to"]
+[gd_scene load_steps=6 format=3 uid="uid://doe371xg6v7to"]
 
 [ext_resource type="Material" uid="uid://sjy5wpaq8fr1" path="res://Board/Wood.tres" id="1_cuxrg"]
 [ext_resource type="Script" uid="uid://jmldlrxvgbvk" path="res://Board/Bench.cs" id="1_jwfkw"]
 [ext_resource type="PackedScene" uid="uid://24oelv35rhtk" path="res://Board/Square.tscn" id="2_8644d"]
+[ext_resource type="PackedScene" uid="uid://bfgl7kuav6736" path="res://Piece/Piece.tscn" id="3_8644d"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_s27tx"]
 material = ExtResource("1_cuxrg")
-size = Vector3(3.4, 0.7, 4.8)
+size = Vector3(3.4, 0.7, 6.3)
 
 [node name="Bench" type="Node3D"]
 script = ExtResource("1_jwfkw")
 squareScene = ExtResource("2_8644d")
+pieceScene = ExtResource("3_8644d")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_s27tx")

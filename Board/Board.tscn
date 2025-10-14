@@ -1,10 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://d3u7c6qcwh0ua"]
+[gd_scene load_steps=6 format=3 uid="uid://d3u7c6qcwh0ua"]
 
 [ext_resource type="Script" uid="uid://e24dsunvx6hx" path="res://Board/Board.cs" id="1_psm7c"]
 [ext_resource type="PackedScene" uid="uid://24oelv35rhtk" path="res://Board/Square.tscn" id="2_ghvr1"]
 [ext_resource type="PackedScene" uid="uid://bfgl7kuav6736" path="res://Piece/Piece.tscn" id="3_74xf4"]
 [ext_resource type="Material" uid="uid://sjy5wpaq8fr1" path="res://Board/Wood.tres" id="4_wd5v0"]
-[ext_resource type="PackedScene" uid="uid://doe371xg6v7to" path="res://Board/Bench.tscn" id="5_s27tx"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_8l818"]
 material = ExtResource("4_wd5v0")
@@ -14,8 +13,8 @@ size = Vector3(14, 0.7, 14)
 script = ExtResource("1_psm7c")
 squareScene = ExtResource("2_ghvr1")
 pieceScene = ExtResource("3_74xf4")
-senteBench = NodePath("Sente Bench")
-goteBench = NodePath("Gote Bench")
+senteBench = NodePath("")
+goteBench = NodePath("")
 piecesNode = NodePath("Pieces")
 
 [node name="Board Mesh" type="MeshInstance3D" parent="."]
@@ -25,9 +24,3 @@ skeleton = NodePath("../..")
 [node name="Squares" type="Node3D" parent="."]
 
 [node name="Pieces" type="Node3D" parent="."]
-
-[node name="Sente Bench" parent="." instance=ExtResource("5_s27tx")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -4.6)
-
-[node name="Gote Bench" parent="." instance=ExtResource("5_s27tx")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 4.6)

@@ -47,18 +47,28 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_csrfs")
 
-[node name="Piece" node_paths=PackedStringArray("FaceDecal") instance=ExtResource("1_2ucto")]
+[node name="Piece" node_paths=PackedStringArray("FaceSprite", "CountLabel", "CountLabelPivot") instance=ExtResource("1_2ucto")]
 script = ExtResource("2_2ln7c")
-FaceSprites = Array[Texture2D]([ExtResource("3_kfgxo"), ExtResource("4_mmewd"), ExtResource("5_fgxok"), ExtResource("6_dg785"), ExtResource("7_t0ydq"), ExtResource("8_p62a2"), ExtResource("9_skph3"), ExtResource("10_xhhv1"), ExtResource("11_b0amm")])
-FaceDecal = NodePath("Piece/FrontDecal")
+FaceTextures = Array[Texture2D]([ExtResource("3_kfgxo"), ExtResource("4_mmewd"), ExtResource("5_fgxok"), ExtResource("6_dg785"), ExtResource("7_t0ydq"), ExtResource("8_p62a2"), ExtResource("9_skph3"), ExtResource("10_xhhv1"), ExtResource("11_b0amm")])
+FaceSprite = NodePath("Piece/FrontSprite")
+CountLabel = NodePath("Piece/CountLabelPivot/CountLabel")
+CountLabelPivot = NodePath("Piece/CountLabelPivot")
 
 [node name="Piece" parent="." index="0"]
 transform = Transform3D(0.5, 0, 0, 0, 0.49986672, 0.011544326, 0, -0.011544326, 0.49986672, 0, 0, 0)
 mesh = SubResource("ArrayMesh_qksr6")
 
-[node name="FrontDecal" type="Decal" parent="Piece" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25025833, -0.105725095)
-size = Vector3(2, 0.20776367, 2)
-texture_albedo = ExtResource("3_kfgxo")
-upper_fade = 1e-05
-lower_fade = 0.0026922622
+[node name="FrontSprite" type="Sprite3D" parent="Piece" index="0"]
+transform = Transform3D(13.999736, -0.0041537583, 0.0859054, -0.08598284, -0.35301602, 13.995285, -0.0019862354, -13.995548, -0.35303485, 0.055804133, 0.23448785, -0.017269691)
+texture_filter = 0
+texture = ExtResource("3_kfgxo")
+
+[node name="CountLabelPivot" type="Node3D" parent="Piece" index="1"]
+
+[node name="CountLabel" type="Label3D" parent="Piece/CountLabelPivot" index="0"]
+transform = Transform3D(2, 0, 0, 0, 0.04617722, 1.9994669, 0, -1.9994669, 0.04617722, 0.86267483, 0.29090974, 0.49780288)
+visible = false
+alpha_cut = 1
+text = "7"
+font_size = 150
+outline_size = 50

@@ -1,30 +1,41 @@
-[gd_scene load_steps=4 format=3 uid="uid://ccobhykhhbabj"]
+[gd_scene load_steps=5 format=3 uid="uid://ccobhykhhbabj"]
 
 [ext_resource type="Script" uid="uid://u64p0om2qyto" path="res://GameController.cs" id="1_uu6xs"]
 [ext_resource type="PackedScene" uid="uid://d3u7c6qcwh0ua" path="res://Board/Board.tscn" id="2_r0du0"]
+[ext_resource type="PackedScene" uid="uid://doe371xg6v7to" path="res://Board/Bench.tscn" id="3_r0du0"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_h2yge"]
 font_size = 42
 
-[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "board")]
+[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes")]
 script = ExtResource("1_uu6xs")
 turnIndicator = NodePath("UI/Turn")
-board = NodePath("Board")
-
-[node name="Board" parent="." instance=ExtResource("2_r0du0")]
+boardNode = NodePath("Board")
+benchNodes = [NodePath("Benches/SenteBench"), NodePath("Benches/GoteBench")]
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 8.65931e-08, 1.201578e-08, 2.398696e-08, 0.13960524, 0.9902073, 8.406764e-08, 0.9902073, -0.13960524, -0.009483337, 20.366653, -2.4853282)
 fov = 44.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.744671, -0.50004846, 0.4420595, -0.105889566, 0.56542575, 0.8179738, -0.65897834, -0.65593094, 0.3681063, 11.645351, 13.85367, 3.9813251)
+transform = Transform3D(0.74467105, -0.50004846, 0.44205955, -0.10588957, 0.56542575, 0.8179738, -0.6589784, -0.65593094, 0.36810622, 11.645351, 13.85367, 3.9813251)
 light_energy = 2.0
 shadow_enabled = true
 shadow_opacity = 0.7
 directional_shadow_split_1 = 0.02
 directional_shadow_split_2 = 0.124
 directional_shadow_split_3 = 0.18
+
+[node name="Board" parent="." instance=ExtResource("2_r0du0")]
+
+[node name="Benches" type="Node3D" parent="."]
+
+[node name="SenteBench" parent="Benches" instance=ExtResource("3_r0du0")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -10, 0, -4)
+
+[node name="GoteBench" parent="Benches" instance=ExtResource("3_r0du0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 4)
+player = 1
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
@@ -51,3 +62,5 @@ text = "Sente's Turn"
 label_settings = SubResource("LabelSettings_h2yge")
 
 [connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
+[connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]
+[connection signal="SquareClicked" from="Benches/GoteBench" to="." method="OnBenchSquareClicked"]

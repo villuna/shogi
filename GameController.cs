@@ -16,12 +16,14 @@ public partial class GameController : Node3D
     [Export]
     public required Label turnIndicator;
     [Export]
-    public required Board board;
+    public required Board boardNode;
+    [Export]
+    public required Bench[] benchNodes = new Bench[2];
 
     // -- Board Model -- //
     // The structs defined below are data types used for the model of the game board.
 
-    private PieceData?[,] boardModel = new PieceData?[9, 9];
+    private PieceData?[,] board = new PieceData?[9, 9];
 
     // Each player has a "bench" of pieces they've captured. For each player we store how many
     // of a certain piece they stored in their bench.
@@ -44,10 +46,14 @@ public partial class GameController : Node3D
 
     private void SetupPieces()
     {
-        SetupPiecesForPlayer(Player.Sente);
-        SetupPiecesForPlayer(Player.Gote);
-        // Set up the actual nodes and models to represent the state of the board
-        board.SetupBoard(boardModel);
+        // Set up the actual nodes that represent the state of the board visually
+        for (int i = 0; i < 2; i++)
+        {
+            Player p = (Player)i;
+            SetupPiecesForPlayer(p);
+            benchNodes[i].SetupBench(p);
+        }
+        boardNode.SetupBoard(board);
     }
 
     private void SetupPiecesForPlayer(Player player)
@@ -81,18 +87,18 @@ public partial class GameController : Node3D
             y = 9 - y - 1;
         }
 
-        boardModel[x, y] = new PieceData(piece, player, false);
+        board[x, y] = new PieceData(piece, player, false);
     }
 
     private void OnBoardSquareClicked(int x, int y)
     {
-        if (boardModel[x, y] is PieceData piece && piece.player == currentPlayer)
+        if (board[x, y] is PieceData piece && piece.player == currentPlayer)
         {
             // If this piece is already selected we should deselect it, else we should select it.
             if (selected == (x, y))
             {
                 selected = null;
-                board.UnhighlightAllSquares();
+                boardNode.UnhighlightAllSquares();
             }
             else
             {
@@ -100,7 +106,7 @@ public partial class GameController : Node3D
 
                 var movableSquares = MovableSquares(x, y, true);
                 movableSquares.Add((x, y));
-                board.HighlightSquares(movableSquares);
+                boardNode.HighlightSquares(movableSquares);
             }
         }
         else
@@ -118,34 +124,39 @@ public partial class GameController : Node3D
             }
 
             selected = null;
-            board.UnhighlightAllSquares();
+            boardNode.UnhighlightAllSquares();
         }
+    }
+
+    private void OnBenchSquareClicked(int piece, int player)
+    {
+        GD.Print("Clicked " + (PieceType)piece + " on player " + (Player)player + "'s board");
     }
 
     private void MovePiece((int x, int y) from, (int x, int y) to)
     {
-        Debug.Assert(boardModel[from.x, from.y] != null);
-        Debug.Assert(boardModel[from.x, from.y]?.player == currentPlayer);
+        Debug.Assert(board[from.x, from.y] != null);
+        Debug.Assert(board[from.x, from.y]?.player == currentPlayer);
         Debug.Assert(CanMoveTo(to.x, to.y, currentPlayer));
 
         // Hold onto the captured piece to update the benches
-        bool isCapturing = false;
-        if (boardModel[to.x, to.y] is PieceData p)
+        var capturedPiece = board[to.x, to.y];
+
+        // Update the board model
+        board[to.x, to.y] = board[from.x, from.y];
+        board[from.x, from.y] = null;
+
+        // Handle captured pieces
+        if (capturedPiece is PieceData p)
         {
-            isCapturing = true;
             benches[(int)currentPlayer, (int)p.piece] += 1;
+
+            boardNode.CapturePiece(to, currentPlayer);
+            benchNodes[(int)currentPlayer].UpdateCountForPiece(p.piece, benches[(int)currentPlayer, (int)p.piece]);
         }
 
-        // Update the model
-        boardModel[to.x, to.y] = boardModel[from.x, from.y];
-        boardModel[from.x, from.y] = null;
-
-        // Update the view
-        if (isCapturing)
-        {
-            board.CapturePiece(to, currentPlayer);
-        }
-        board.MovePiece(from, to);
+        // Update the board view
+        boardNode.MovePiece(from, to);
     }
 
     // Given the coordinate of a piece on the board, returns which squares it can move to given
@@ -157,7 +168,7 @@ public partial class GameController : Node3D
     // TODO: handle promoted pieces
     private List<(int, int)> MovableSquares(int x, int y, bool disallowCheck)
     {
-        if (boardModel[x, y] is PieceData piece)
+        if (board[x, y] is PieceData piece)
         {
             var squares = new List<(int, int)>();
 
@@ -304,9 +315,9 @@ public partial class GameController : Node3D
                     // but it works well and avoids cloning the model.
                     (int x2, int y2) = squares[i];
 
-                    var tmp = boardModel[x2, y2];
-                    boardModel[x2, y2] = boardModel[x, y];
-                    boardModel[x, y] = null;
+                    var tmp = board[x2, y2];
+                    board[x2, y2] = board[x, y];
+                    board[x, y] = null;
 
                     bool inCheck = PlayersKingInCheck(currentPlayer);
 
@@ -315,8 +326,8 @@ public partial class GameController : Node3D
                         squares.RemoveAt(i);
                     }
 
-                    boardModel[x, y] = boardModel[x2, y2];
-                    boardModel[x2, y2] = tmp;
+                    board[x, y] = board[x2, y2];
+                    board[x2, y2] = tmp;
                 }
             }
 
@@ -339,12 +350,12 @@ public partial class GameController : Node3D
             for (int y = 0; y < 9; y++)
             {
                 // Loop over every enemy piece
-                if (boardModel[x, y] is PieceData p && p.player != player)
+                if (board[x, y] is PieceData p && p.player != player)
                 {
                     var squares = MovableSquares(x, y, false);
                     foreach ((int x2, int y2) in squares)
                     {
-                        if (boardModel[x2, y2] is PieceData p2 && p2.player == player
+                        if (board[x2, y2] is PieceData p2 && p2.player == player
                             && p2.piece == PieceType.King)
                         {
                             return true;
@@ -359,13 +370,13 @@ public partial class GameController : Node3D
 
     private bool HasEnemyPiece(int x, int y, Player player)
     {
-        return boardModel[x, y] is PieceData p && p.player != player;
+        return board[x, y] is PieceData p && p.player != player;
     }
 
     private bool CanMoveTo(int x, int y, Player player)
     {
         return x >= 0 && y >= 0 && x < 9 && y < 9 &&
-            !(boardModel[x, y] is PieceData p && p.player == player);
+            !(board[x, y] is PieceData p && p.player == player);
     }
 
     // Finishes the current player's turn and starts the next player's turn.

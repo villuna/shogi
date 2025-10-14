@@ -15,15 +15,6 @@ public partial class Board : Node3D
     [Export]
     public required PackedScene pieceScene;
 
-    [Export]
-    public required Bench senteBench;
-    [Export]
-    public required Bench goteBench;
-
-    // Simply holds senteBench and goteBench in an array so we can refer to them by their player
-    // IDs as defined by the Player enum.
-    private Bench[] benches = new Bench[2];
-
     // Empty child node that is the parent of all the pieces. This exists so we can easily destroy
     // all the pieces when we want to reset the board.
     [Export]
@@ -43,10 +34,6 @@ public partial class Board : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        // Set up the benches array
-        benches[(int)Player.Gote] = goteBench;
-        benches[(int)Player.Sente] = senteBench;
-
         // Create the tiles on the board
         for (int i = 0; i < 9; i++)
         {
