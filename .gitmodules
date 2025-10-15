@@ -1,0 +1,3 @@
+[submodule "nanoshogi"]
+	path = nanoshogi
+	url = https://github.com/villuna/nanoshogi.git

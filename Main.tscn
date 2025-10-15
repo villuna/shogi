@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://ccobhykhhbabj"]
+[gd_scene load_steps=9 format=3 uid="uid://ccobhykhhbabj"]
 
 [ext_resource type="Script" uid="uid://u64p0om2qyto" path="res://GameController.cs" id="1_uu6xs"]
 [ext_resource type="PackedScene" uid="uid://d3u7c6qcwh0ua" path="res://Board/Board.tscn" id="2_r0du0"]
 [ext_resource type="PackedScene" uid="uid://doe371xg6v7to" path="res://Board/Bench.tscn" id="3_r0du0"]
+[ext_resource type="Script" uid="uid://0qn12xuiv675" path="res://Agents/UsiAgent.cs" id="4_cm0pq"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_h2yge"]
 font_size = 42
@@ -152,6 +153,9 @@ text = "Checkmate"
 label_settings = SubResource("LabelSettings_fos0i")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="USIAgent" type="Node" parent="."]
+script = ExtResource("4_cm0pq")
 
 [connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
 [connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]
