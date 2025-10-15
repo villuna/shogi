@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://ccobhykhhbabj"]
+[gd_scene load_steps=8 format=3 uid="uid://ccobhykhhbabj"]
 
 [ext_resource type="Script" uid="uid://u64p0om2qyto" path="res://GameController.cs" id="1_uu6xs"]
 [ext_resource type="PackedScene" uid="uid://d3u7c6qcwh0ua" path="res://Board/Board.tscn" id="2_r0du0"]
@@ -10,12 +10,21 @@ font_size = 42
 [sub_resource type="LabelSettings" id="LabelSettings_r0du0"]
 font_size = 28
 
-[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes", "promoteDialog")]
+[sub_resource type="LabelSettings" id="LabelSettings_cm0pq"]
+font_size = 80
+
+[sub_resource type="LabelSettings" id="LabelSettings_fos0i"]
+font_size = 36
+
+[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes", "promoteDialog", "resultDisplay", "resultLabel", "resultTypeLabel")]
 script = ExtResource("1_uu6xs")
 turnIndicator = NodePath("UI/Turn")
 boardNode = NodePath("Board")
 benchNodes = [NodePath("Benches/SenteBench"), NodePath("Benches/GoteBench")]
 promoteDialog = NodePath("UI/PromoteDialog")
+resultDisplay = NodePath("UI/ResultDisplay")
+resultLabel = NodePath("UI/ResultDisplay/VBoxContainer/ResultLabel")
+resultTypeLabel = NodePath("UI/ResultDisplay/VBoxContainer/ResultTypeLabel")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 8.65931e-08, 1.201578e-08, 2.398696e-08, 0.13960524, 0.9902073, 8.406764e-08, 0.9902073, -0.13960524, -0.009483337, 20.366653, -2.4853282)
@@ -116,6 +125,33 @@ layout_mode = 2
 size_flags_horizontal = 6
 theme_override_font_sizes/font_size = 24
 text = "No"
+
+[node name="ResultDisplay" type="PanelContainer" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/ResultDisplay"]
+layout_mode = 2
+alignment = 1
+
+[node name="ResultLabel" type="Label" parent="UI/ResultDisplay/VBoxContainer"]
+layout_mode = 2
+text = "You Win"
+label_settings = SubResource("LabelSettings_cm0pq")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultTypeLabel" type="Label" parent="UI/ResultDisplay/VBoxContainer"]
+layout_mode = 2
+text = "Checkmate"
+label_settings = SubResource("LabelSettings_fos0i")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
 [connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]

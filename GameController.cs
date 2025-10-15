@@ -21,11 +21,18 @@ public partial class GameController : Node3D
     public required Bench[] benchNodes = new Bench[2];
     [Export]
     public required Control promoteDialog;
+    [Export]
+    public required Control resultDisplay;
+    [Export]
+    public required Label resultLabel;
+    [Export]
+    public required Label resultTypeLabel;
 
     enum State
     {
         Playing,
-        WaitingForPromoteDialog
+        WaitingForPromoteDialog,
+        GameOver
     }
 
     private State state = State.Playing;
@@ -161,7 +168,7 @@ public partial class GameController : Node3D
                 if (droppableSquares.Contains((x, y)))
                 {
                     DropPiece(dropPiece, (x, y));
-                    NextTurn();
+                    EndTurn();
                 }
 
                 DeselectBoardPiece();
@@ -262,7 +269,7 @@ public partial class GameController : Node3D
         }
         else
         {
-            NextTurn();
+            EndTurn();
         }
     }
 
@@ -622,8 +629,9 @@ public partial class GameController : Node3D
             !(board[x, y] is PieceData p && p.player == player);
     }
 
-    // Finishes the current player's turn and starts the next player's turn.
-    private void NextTurn()
+    // Finishes the current player's turn, checks for game over states and starts the next turn if
+    // the game is not over.
+    private void EndTurn()
     {
         DeselectBenchPiece();
         DeselectBoardPiece();
@@ -638,6 +646,72 @@ public partial class GameController : Node3D
             currentPlayer = Player.Sente;
             turnIndicator.Text = "Sente's Turn";
         }
+
+        HandleGameOver();
+    }
+
+    private void HandleGameOver()
+    {
+        // Check for checkmates - if the current player is in check and has no moves, they lose
+        bool canMove = CurrentPlayerCanMove();
+        bool inCheck = PlayersKingInCheck(currentPlayer);
+
+        if (!canMove)
+        {
+            if (inCheck)
+            {
+                // Checkmate
+                DoGameOver(currentPlayer == Player.Sente ? "You Lose" : "You Win", "Checkmate");
+            }
+            else
+            {
+                // Stalemate
+                DoGameOver("Draw", "Stalemate");
+            }
+        }
+    }
+
+    private void DoGameOver(String result, String resultType)
+    {
+        state = State.GameOver;
+        resultDisplay.Visible = true;
+        turnIndicator.Visible = false;
+        resultLabel.Text = result;
+        resultTypeLabel.Text = resultType;
+    }
+
+    private bool CurrentPlayerCanMove()
+    {
+        // Check if the player can move any pieces
+        for (int x = 0; x < 9; x++)
+        {
+            for (int y = 0; y < 9; y++)
+            {
+                if (board[x, y] is PieceData piece && piece.player == currentPlayer)
+                {
+                    var squares = MovableSquares(x, y, true);
+                    if (squares.Count != 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Check if the player can drop any pieces
+        for (int i = 0; i < 7; i++)
+        {
+            if (benches[(int)currentPlayer, i] >= 0)
+            {
+                var squares = DroppableSquares((PieceType)i);
+                if (squares.Count != 0)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     // Responds to the player clicking Yes or No on the promote dialog
@@ -664,6 +738,6 @@ public partial class GameController : Node3D
         pieceToPromote = null;
         promoteDialog.Visible = false;
         state = State.Playing;
-        NextTurn();
+        EndTurn();
     }
 }
