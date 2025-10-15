@@ -19,6 +19,16 @@ public partial class GameController : Node3D
     public required Board boardNode;
     [Export]
     public required Bench[] benchNodes = new Bench[2];
+    [Export]
+    public required Control promoteDialog;
+
+    enum State
+    {
+        Playing,
+        WaitingForPromoteDialog
+    }
+
+    private State state = State.Playing;
 
     // -- Board Model -- //
     // The structs defined below are data types used for the model of the game board.
@@ -36,6 +46,9 @@ public partial class GameController : Node3D
     // The coordinate of the piece that is currently selected (or null if no board square is
     // selected).
     private (int, int)? selected = null;
+    // The coordinate of the piece that should be promoted if the user clicks yes on the promote
+    // dialog
+    private (int, int)? pieceToPromote = null;
     // The currently selected piece on the current player's bench (or null if none is selected).
     private PieceType? selectedBenchPiece = null;
 
@@ -107,6 +120,9 @@ public partial class GameController : Node3D
 
     private void OnBoardSquareClicked(int x, int y)
     {
+        if (state != State.Playing)
+            return;
+
         if (board[x, y] is PieceData piece && piece.player == currentPlayer)
         {
             // If this piece is already selected we should deselect it, else we should select it.
@@ -125,10 +141,8 @@ public partial class GameController : Node3D
         }
         else
         {
-            GD.Print("Else branch");
             if (selected is (int, int) s)
             {
-                GD.Print("Piece is selected");
                 // Attempt to move the selected piece to the square the player clicked on
                 int sx = s.Item1, sy = s.Item2;
                 var movableSquares = MovableSquares(sx, sy, true);
@@ -136,28 +150,22 @@ public partial class GameController : Node3D
                 if (movableSquares.Contains((x, y)))
                 {
                     MovePiece(s, (x, y));
-                    NextTurn();
                 }
             }
             else if (selectedBenchPiece is PieceType dropPiece && board[x, y] == null)
             {
-                GD.Print("Bench piece is indeed selected");
                 // Attempt to place the selected piece on the square the player clicked on
-                if (benches[(int)currentPlayer, (int)dropPiece] > 0)
+                Debug.Assert(benches[(int)currentPlayer, (int)dropPiece] > 0);
+                var droppableSquares = DroppableSquares(dropPiece);
+
+                if (droppableSquares.Contains((x, y)))
                 {
-                    GD.Print("We have enough pieces");
-                    var droppableSquares = DroppableSquares(dropPiece);
-
-                    if (droppableSquares.Contains((x, y)))
-                    {
-                        GD.Print("We can drop the piece");
-                        DropPiece(dropPiece, (x, y));
-                        NextTurn();
-                    }
+                    DropPiece(dropPiece, (x, y));
+                    NextTurn();
                 }
-            }
 
-            DeselectBoardPiece();
+                DeselectBoardPiece();
+            }
         }
 
         // If we click on a board square and a piece on the bench was already selected it should be
@@ -179,6 +187,9 @@ public partial class GameController : Node3D
 
     private void OnBenchSquareClicked(int pieceId, int playerId)
     {
+        if (state != State.Playing)
+            return;
+
         Player player = (Player)playerId;
         PieceType piece = (PieceType)pieceId;
 
@@ -225,7 +236,8 @@ public partial class GameController : Node3D
         var capturedPiece = board[to.x, to.y];
 
         // Update the board model
-        board[to.x, to.y] = board[from.x, from.y];
+        PieceData movedPiece = (PieceData)board[from.x, from.y]!;
+        board[to.x, to.y] = movedPiece;
         board[from.x, from.y] = null;
 
         // Handle captured pieces
@@ -239,6 +251,41 @@ public partial class GameController : Node3D
 
         // Update the board view
         boardNode.MovePiece(from, to);
+
+        // Promote if necessary. If we promote we don't end the turn immediately, since we have to
+        // wait for the player to choose whether to promote or not
+        if (movedPiece.CanPromote(to.y))
+        {
+            promoteDialog.Visible = true;
+            pieceToPromote = to;
+            state = State.WaitingForPromoteDialog;
+        }
+        else
+        {
+            NextTurn();
+        }
+    }
+
+    private List<(int, int)> MovableSquaresGold(int x, int y)
+    {
+
+        // The gold general can move 1 square laterally in any direction or diagonally
+        // forward.
+        //
+        // 000
+        // 0x0
+        //  0
+        //
+        // Like this, where x is the piece and 0 is a square the piece can move to.
+        var squares = new List<(int, int)>();
+        if (board[x, y] is PieceData piece)
+        {
+            int step = piece.player == Player.Sente ? 1 : -1;
+            foreach ((int dx, int dy) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, step), (1, step) })
+                if (CanMoveTo(x + dx, y + dy, piece.player))
+                    squares.Add((x + dx, y + dy));
+        }
+        return squares;
     }
 
     // Given the coordinate of a piece on the board, returns which squares it can move to given
@@ -256,12 +303,20 @@ public partial class GameController : Node3D
 
             if (piece.piece == PieceType.Pawn)
             {
-                // Pawns can only move one square forward
-                // unlike in chess, shogi pawns capture in the same way they move
-                int step = piece.player == Player.Sente ? 1 : -1;
+                if (piece.promoted)
+                {
+                    // Pawn promotes to a gold general
+                    squares.AddRange(MovableSquaresGold(x, y));
+                }
+                else
+                {
+                    // Pawns can only move one square forward
+                    // unlike in chess, shogi pawns capture in the same way they move
+                    int step = piece.player == Player.Sente ? 1 : -1;
 
-                if (CanMoveTo(x, y + step, piece.player))
-                    squares.Add((x, y + step));
+                    if (CanMoveTo(x, y + step, piece.player))
+                        squares.Add((x, y + step));
+                }
             }
             else if (piece.piece == PieceType.Bishop)
             {
@@ -282,6 +337,21 @@ public partial class GameController : Node3D
 
                         x2 += dx;
                         y2 += dy;
+                    }
+                }
+
+                if (piece.promoted)
+                {
+                    // When the bishop promotes it gains the ability to move laterally 1 square
+                    foreach ((int dx, int dy) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1) })
+                    {
+                        var x2 = x + dx;
+                        var y2 = y + dy;
+
+                        if (CanMoveTo(x2, y2, piece.player))
+                        {
+                            squares.Add((x2, y2));
+                        }
                     }
                 }
             }
@@ -306,61 +376,89 @@ public partial class GameController : Node3D
                         y2 += dy;
                     }
                 }
+
+                if (piece.promoted)
+                {
+                    // When the rook promotes it gains the ability to move diagonally 1 square
+                    foreach ((int dx, int dy) in new[] { (-1, -1), (-1, 1), (1, -1), (1, 1) })
+                    {
+                        var x2 = x + dx;
+                        var y2 = y + dy;
+
+                        if (CanMoveTo(x2, y2, piece.player))
+                        {
+                            squares.Add((x2, y2));
+                        }
+                    }
+                }
             }
             else if (piece.piece == PieceType.Lance)
             {
-                // The lance goes as far as it wants but forward only
-                int step = piece.player == Player.Sente ? 1 : -1;
-                var y2 = y + step;
-
-                while (CanMoveTo(x, y2, piece.player))
+                if (piece.promoted)
                 {
-                    squares.Add((x, y2));
+                    // Lance promotes to a gold general
+                    squares.AddRange(MovableSquaresGold(x, y));
+                }
+                else
+                {
+                    // The lance goes as far as it wants but forward only
+                    int step = piece.player == Player.Sente ? 1 : -1;
+                    var y2 = y + step;
 
-                    if (HasEnemyPiece(x, y2, piece.player))
-                        break;
+                    while (CanMoveTo(x, y2, piece.player))
+                    {
+                        squares.Add((x, y2));
 
-                    y2 += step;
+                        if (HasEnemyPiece(x, y2, piece.player))
+                            break;
+
+                        y2 += step;
+                    }
                 }
             }
             else if (piece.piece == PieceType.Knight)
             {
-                // The knight goes forward 2 squares and then 1 to the left/right
-                // can "jump" over other pieces
-                int step = piece.player == Player.Sente ? 1 : -1;
-                foreach ((int dx, int dy) in new[] { (1, 2 * step), (-1, 2 * step) })
-                    if (CanMoveTo(x + dx, y + dy, piece.player))
-                        squares.Add((x + dx, y + dy));
+                if (piece.promoted)
+                {
+                    // Knight promotes to a gold general
+                    squares.AddRange(MovableSquaresGold(x, y));
+                }
+                else
+                {
+                    // The knight goes forward 2 squares and then 1 to the left/right
+                    // can "jump" over other pieces
+                    int step = piece.player == Player.Sente ? 1 : -1;
+                    foreach ((int dx, int dy) in new[] { (1, 2 * step), (-1, 2 * step) })
+                        if (CanMoveTo(x + dx, y + dy, piece.player))
+                            squares.Add((x + dx, y + dy));
+                }
             }
             else if (piece.piece == PieceType.Silver)
             {
-                // The silver general can move 1 square diagonally in any direction, or 1 square
-                // forward.
-                //
-                // 000
-                //  x
-                // 0 0
-                //
-                // Like this, where x is the piece and 0 is a square the piece can move to.
-                int step = piece.player == Player.Sente ? 1 : -1;
-                foreach ((int dx, int dy) in new[] { (-1, -1), (1, -1), (-1, 1), (1, 1), (0, step) })
-                    if (CanMoveTo(x + dx, y + dy, piece.player))
-                        squares.Add((x + dx, y + dy));
+                if (piece.promoted)
+                {
+                    // Silver general promotes to a gold general
+                    squares.AddRange(MovableSquaresGold(x, y));
+                }
+                else
+                {
+                    // The silver general can move 1 square diagonally in any direction, or 1 square
+                    // forward.
+                    //
+                    // 000
+                    //  x
+                    // 0 0
+                    //
+                    // Like this, where x is the piece and 0 is a square the piece can move to.
+                    int step = piece.player == Player.Sente ? 1 : -1;
+                    foreach ((int dx, int dy) in new[] { (-1, -1), (1, -1), (-1, 1), (1, 1), (0, step) })
+                        if (CanMoveTo(x + dx, y + dy, piece.player))
+                            squares.Add((x + dx, y + dy));
+                }
             }
             else if (piece.piece == PieceType.Gold)
             {
-                // The gold general can move 1 square laterally in any direction or diagonally
-                // forward.
-                //
-                // 000
-                // 0x0
-                //  0
-                //
-                // Like this, where x is the piece and 0 is a square the piece can move to.
-                int step = piece.player == Player.Sente ? 1 : -1;
-                foreach ((int dx, int dy) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, step), (1, step) })
-                    if (CanMoveTo(x + dx, y + dy, piece.player))
-                        squares.Add((x + dx, y + dy));
+                squares.AddRange(MovableSquaresGold(x, y));
             }
             else if (piece.piece == PieceType.King)
             {
@@ -540,5 +638,32 @@ public partial class GameController : Node3D
             currentPlayer = Player.Sente;
             turnIndicator.Text = "Sente's Turn";
         }
+    }
+
+    // Responds to the player clicking Yes or No on the promote dialog
+    // This should only be visible (and thus clickable) after moving a piece but before the turn has
+    // ended.
+    private void OnPromoteDialogResponse(bool promote)
+    {
+        Debug.Assert(state == State.WaitingForPromoteDialog);
+        Debug.Assert(pieceToPromote != null);
+
+        if (promote)
+        {
+            (int x, int y) p = ((int, int))pieceToPromote!;
+            Debug.Assert(board[p.x, p.y] != null);
+            PieceData data = (PieceData)board[p.x, p.y]!;
+            // This only affects the piece in the board model because PieceData is a class and thus
+            // is a reference type.
+            // The whole concept of invisibly different reference and value types is terrifying
+            // give me my pointers back
+            data.promoted = true;
+            boardNode.PromotePiece(p.x, p.y);
+        }
+
+        pieceToPromote = null;
+        promoteDialog.Visible = false;
+        state = State.Playing;
+        NextTurn();
     }
 }

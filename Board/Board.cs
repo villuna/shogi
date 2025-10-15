@@ -120,6 +120,15 @@ public partial class Board : Node3D
         piecesNode.AddChild(piece);
     }
 
+    // Promotes the piece stored at the given coordinate (if it exists)
+    public void PromotePiece(int x, int y)
+    {
+        if (pieces[x, y] is Piece p)
+        {
+            p.Promote();
+        }
+    }
+
     // Highlights the given squares (and unhighlights any others)
     public void HighlightSquares(IEnumerable<(int, int)> coords)
     {

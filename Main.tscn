@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://ccobhykhhbabj"]
+[gd_scene load_steps=6 format=3 uid="uid://ccobhykhhbabj"]
 
 [ext_resource type="Script" uid="uid://u64p0om2qyto" path="res://GameController.cs" id="1_uu6xs"]
 [ext_resource type="PackedScene" uid="uid://d3u7c6qcwh0ua" path="res://Board/Board.tscn" id="2_r0du0"]
@@ -7,11 +7,15 @@
 [sub_resource type="LabelSettings" id="LabelSettings_h2yge"]
 font_size = 42
 
-[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes")]
+[sub_resource type="LabelSettings" id="LabelSettings_r0du0"]
+font_size = 28
+
+[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes", "promoteDialog")]
 script = ExtResource("1_uu6xs")
 turnIndicator = NodePath("UI/Turn")
 boardNode = NodePath("Board")
 benchNodes = [NodePath("Benches/SenteBench"), NodePath("Benches/GoteBench")]
+promoteDialog = NodePath("UI/PromoteDialog")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 8.65931e-08, 1.201578e-08, 2.398696e-08, 0.13960524, 0.9902073, 8.406764e-08, 0.9902073, -0.13960524, -0.009483337, 20.366653, -2.4853282)
@@ -61,6 +65,60 @@ grow_horizontal = 2
 text = "Sente's Turn"
 label_settings = SubResource("LabelSettings_h2yge")
 
+[node name="PromoteDialog" type="Panel" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -191.5
+offset_top = -68.5
+offset_right = 191.5
+offset_bottom = 68.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/PromoteDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Promote?" type="Label" parent="UI/PromoteDialog/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+text = "Promote?"
+label_settings = SubResource("LabelSettings_r0du0")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/PromoteDialog/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6
+alignment = 1
+
+[node name="Yes" type="Button" parent="UI/PromoteDialog/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_font_sizes/font_size = 24
+text = "Yes
+"
+
+[node name="No" type="Button" parent="UI/PromoteDialog/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_font_sizes/font_size = 24
+text = "No"
+
 [connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
 [connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]
 [connection signal="SquareClicked" from="Benches/GoteBench" to="." method="OnBenchSquareClicked"]
+[connection signal="pressed" from="UI/PromoteDialog/VBoxContainer/HBoxContainer/Yes" to="." method="OnPromoteDialogResponse" binds= [true]]
+[connection signal="pressed" from="UI/PromoteDialog/VBoxContainer/HBoxContainer/No" to="." method="OnPromoteDialogResponse" binds= [false]]

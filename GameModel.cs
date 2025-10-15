@@ -22,7 +22,7 @@ public enum Player
 }
 
 // Datatype representing a piece in the game
-public struct PieceData
+public class PieceData
 {
     public PieceType piece;
     public bool promoted;
@@ -33,5 +33,24 @@ public struct PieceData
         this.piece = piece;
         this.player = player;
         this.promoted = promoted;
+    }
+
+    public bool CanPromote(int y)
+    {
+        if (promoted)
+            return false;
+
+        // Check if we are on one of the right ranks
+        if (!(player == Player.Sente && y >= 6 || player == Player.Gote && y <= 2))
+        {
+            return false;
+        }
+
+        if (piece == PieceType.King || piece == PieceType.Gold)
+        {
+            return false;
+        }
+
+        return true;
     }
 }
