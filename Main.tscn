@@ -156,6 +156,7 @@ vertical_alignment = 1
 
 [node name="USIAgent" type="Node" parent="."]
 script = ExtResource("4_cm0pq")
+processPath = "./nanoshogi/target/release/nanoshogi"
 
 [connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
 [connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]
