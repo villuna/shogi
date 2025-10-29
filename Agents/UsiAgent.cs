@@ -14,6 +14,7 @@ public partial class UsiAgent : Node
             OS.ExecuteWithPipe(processPath, [""], blocking: false);
         processStdio = (FileAccess)dict["stdio"];
         processStdio.StoreLine("usi");
+        processStdio.StoreLine("go movetime 5000");
     }
 
     public override void _Process(double delta)
@@ -21,7 +22,29 @@ public partial class UsiAgent : Node
         String nextLine = processStdio.GetLine();
         if (nextLine.Length != 0)
         {
-            GD.Print("nano: \"" + nextLine + "\"");
+            GD.Print("Got: \"" + nextLine + "\"");
+            HandleUsiMessage(nextLine);
+        }
+    }
+
+    private void HandleUsiMessage(String msg)
+    {
+        UsiMessage message = UsiMessage.Parse(msg);
+
+        if (message is Info info)
+        {
+            GD.Print("Info: \"" + info.info + "\"");
+        }
+        else if (message is BestMove move)
+        {
+            if (move.best.type == Move.MoveType.Move)
+            {
+                GD.Print("Best Move: " + move.best.fromCoord + " to " + move.best.toCoord);
+            }
+            else
+            {
+                GD.Print("Best Move: drop " + move.best.dropType + " on " + move.best.toCoord);
+            }
         }
     }
 }
