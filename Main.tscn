@@ -17,7 +17,7 @@ font_size = 80
 [sub_resource type="LabelSettings" id="LabelSettings_fos0i"]
 font_size = 36
 
-[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes", "promoteDialog", "resultDisplay", "resultLabel", "resultTypeLabel")]
+[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes", "promoteDialog", "resultDisplay", "resultLabel", "resultTypeLabel", "opponent")]
 script = ExtResource("1_uu6xs")
 turnIndicator = NodePath("UI/Turn")
 boardNode = NodePath("Board")
@@ -26,6 +26,7 @@ promoteDialog = NodePath("UI/PromoteDialog")
 resultDisplay = NodePath("UI/ResultDisplay")
 resultLabel = NodePath("UI/ResultDisplay/VBoxContainer/ResultLabel")
 resultTypeLabel = NodePath("UI/ResultDisplay/VBoxContainer/ResultTypeLabel")
+opponent = NodePath("USIAgent")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 8.65931e-08, 1.201578e-08, 2.398696e-08, 0.13960524, 0.9902073, 8.406764e-08, 0.9902073, -0.13960524, -0.009483337, 20.366653, -2.4853282)
@@ -157,9 +158,11 @@ vertical_alignment = 1
 [node name="USIAgent" type="Node" parent="."]
 script = ExtResource("4_cm0pq")
 processPath = "./nanoshogi/target/release/nanoshogi"
+moveTimeMillis = 5000
 
 [connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
 [connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]
 [connection signal="SquareClicked" from="Benches/GoteBench" to="." method="OnBenchSquareClicked"]
 [connection signal="pressed" from="UI/PromoteDialog/VBoxContainer/HBoxContainer/Yes" to="." method="OnPromoteDialogResponse" binds= [true]]
 [connection signal="pressed" from="UI/PromoteDialog/VBoxContainer/HBoxContainer/No" to="." method="OnPromoteDialogResponse" binds= [false]]
+[connection signal="MoveMade" from="USIAgent" to="." method="OnAgentMoveMade"]

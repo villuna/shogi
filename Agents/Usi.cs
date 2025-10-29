@@ -117,7 +117,7 @@ public class Info : UsiMessage
 
 public class BestMove : UsiMessage
 {
-    public Move best;
+    public string bestMove;
 
     public BestMove(string[] tokens)
     {
@@ -125,6 +125,6 @@ public class BestMove : UsiMessage
         {
             throw new ArgumentException("not enough parameters for command \"bestmove\"");
         }
-        best = new Move(tokens[1]);
+        bestMove = tokens[1];
     }
 }

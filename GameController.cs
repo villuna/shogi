@@ -27,6 +27,8 @@ public partial class GameController : Node3D
     public required Label resultLabel;
     [Export]
     public required Label resultTypeLabel;
+    [Export]
+    public required Agent opponent;
 
     enum State
     {
@@ -125,9 +127,45 @@ public partial class GameController : Node3D
         boardNode.UnhighlightAllSquares();
     }
 
+    private void MakeMove(Move move, bool agent)
+    {
+        if (move.type == Move.MoveType.Move)
+        {
+            if (!(move.fromCoord is (int x, int y) s))
+            {
+                throw new ArgumentException("Move is type move but from coord is null");
+            }
+
+            var movableSquares = MovableSquares(s.x, s.y, true);
+
+            if (movableSquares.Contains(move.toCoord))
+            {
+                MovePiece(s, move.toCoord, agent, move.promote);
+            }
+        }
+        else
+        {
+            if (!(move.dropType is PieceType dropPiece))
+            {
+                throw new ArgumentException("Move is type drop but drop piece is null");
+            }
+            if (benches[(int)currentPlayer, (int)dropPiece] <= 0)
+            {
+                throw new ArgumentException("Illegal move for current position");
+            }
+            var droppableSquares = DroppableSquares(dropPiece);
+
+            if (droppableSquares.Contains(move.toCoord))
+            {
+                DropPiece(dropPiece, move.toCoord);
+                EndTurn();
+            }
+        }
+    }
+
     private void OnBoardSquareClicked(int x, int y)
     {
-        if (state != State.Playing)
+        if (state != State.Playing || currentPlayer != Player.Sente)
             return;
 
         if (board[x, y] is PieceData piece && piece.player == currentPlayer)
@@ -150,27 +188,11 @@ public partial class GameController : Node3D
         {
             if (selected is (int, int) s)
             {
-                // Attempt to move the selected piece to the square the player clicked on
-                int sx = s.Item1, sy = s.Item2;
-                var movableSquares = MovableSquares(sx, sy, true);
-
-                if (movableSquares.Contains((x, y)))
-                {
-                    MovePiece(s, (x, y));
-                }
+                MakeMove(new Move(s, (x, y), false), false);
             }
             else if (selectedBenchPiece is PieceType dropPiece && board[x, y] == null)
             {
-                // Attempt to place the selected piece on the square the player clicked on
-                Debug.Assert(benches[(int)currentPlayer, (int)dropPiece] > 0);
-                var droppableSquares = DroppableSquares(dropPiece);
-
-                if (droppableSquares.Contains((x, y)))
-                {
-                    DropPiece(dropPiece, (x, y));
-                    EndTurn();
-                }
-
+                MakeMove(new Move(dropPiece, (x, y)), false);
                 DeselectBoardPiece();
             }
         }
@@ -233,7 +255,7 @@ public partial class GameController : Node3D
         }
     }
 
-    private void MovePiece((int x, int y) from, (int x, int y) to)
+    private void MovePiece((int x, int y) from, (int x, int y) to, bool agent, bool promote)
     {
         Debug.Assert(board[from.x, from.y] != null);
         Debug.Assert(board[from.x, from.y]?.player == currentPlayer);
@@ -259,13 +281,22 @@ public partial class GameController : Node3D
         // Update the board view
         boardNode.MovePiece(from, to);
 
-        // Promote if necessary. If we promote we don't end the turn immediately, since we have to
-        // wait for the player to choose whether to promote or not
         if (movedPiece.CanPromote(to.y))
         {
-            promoteDialog.Visible = true;
-            pieceToPromote = to;
-            state = State.WaitingForPromoteDialog;
+            if (!agent)
+            {
+                // If we promote we don't end the turn immediately, since we have to
+                // wait for the player to choose whether to promote or not
+                promoteDialog.Visible = true;
+                pieceToPromote = to;
+                state = State.WaitingForPromoteDialog;
+            }
+            else if (promote)
+            {
+                // If the agent wants to promote we should just do it immediately without the dialog
+                PromotePiece(to);
+                EndTurn();
+            }
         }
         else
         {
@@ -640,6 +671,7 @@ public partial class GameController : Node3D
         {
             currentPlayer = Player.Gote;
             turnIndicator.Text = "Gote's Turn";
+            opponent.StartTurn(ToSfen());
         }
         else
         {
@@ -648,6 +680,86 @@ public partial class GameController : Node3D
         }
 
         HandleGameOver();
+    }
+
+    // Converts the current state of the game to an SFEN string
+    private string ToSfen()
+    {
+        string res = "";
+
+        // Add board representation
+        for (int y = 8; y >= 0; y--)
+        {
+            if (y != 8)
+            {
+                res += "/";
+            }
+
+            for (int x = 0; x < 9; x++)
+            {
+                if (board[x, y] is PieceData piece)
+                {
+                    res += piece.ToSfenString();
+                }
+                else
+                {
+                    int numEmpty = 0;
+
+                    while (x < 9 && board[x, y] == null)
+                    {
+                        numEmpty += 1;
+                        x += 1;
+                    }
+
+                    res += numEmpty;
+                    // counterract the increment that will happen  before the next iteration
+                    // of the loop
+                    x -= 1;
+                }
+            }
+        }
+
+        // Add player to move
+        res += " ";
+        if (currentPlayer == Player.Sente)
+            res += "b";
+        else
+            res += "w";
+
+        // Add hands
+        res += " ";
+        res += BenchesToSfen();
+
+        // Add turn number
+        // TODO
+
+        return res;
+    }
+
+    private string BenchesToSfen()
+    {
+        string res = "";
+        for (int player = 0; player < 2; player++)
+        {
+            foreach (PieceType piece in new PieceType[] { PieceType.Rook, PieceType.Bishop,
+               PieceType.Gold, PieceType.Silver, PieceType.Knight, PieceType.Lance,
+               PieceType.Pawn})
+            {
+                if (benches[player, (int)piece] > 0)
+                {
+                    if (benches[player, (int)piece] > 1)
+                    {
+                        res += benches[player, (int)piece];
+                    }
+                    res += new PieceData(piece, (Player)player, false).ToSfenString();
+                }
+            }
+        }
+
+        if (res == "")
+            res = "-";
+
+        return res;
     }
 
     private void HandleGameOver()
@@ -714,6 +826,18 @@ public partial class GameController : Node3D
         return false;
     }
 
+    private void PromotePiece((int x, int y) coord)
+    {
+        Debug.Assert(board[coord.x, coord.y] != null);
+        PieceData data = (PieceData)board[coord.x, coord.y]!;
+        // This only affects the piece in the board model because PieceData is a class and thus
+        // is a reference type.
+        // The whole concept of invisibly different reference and value types is terrifying
+        // give me my pointers back
+        data.promoted = true;
+        boardNode.PromotePiece(coord.x, coord.y);
+    }
+
     // Responds to the player clicking Yes or No on the promote dialog
     // This should only be visible (and thus clickable) after moving a piece but before the turn has
     // ended.
@@ -724,20 +848,18 @@ public partial class GameController : Node3D
 
         if (promote)
         {
-            (int x, int y) p = ((int, int))pieceToPromote!;
-            Debug.Assert(board[p.x, p.y] != null);
-            PieceData data = (PieceData)board[p.x, p.y]!;
-            // This only affects the piece in the board model because PieceData is a class and thus
-            // is a reference type.
-            // The whole concept of invisibly different reference and value types is terrifying
-            // give me my pointers back
-            data.promoted = true;
-            boardNode.PromotePiece(p.x, p.y);
+            PromotePiece(((int, int))pieceToPromote!);
         }
 
         pieceToPromote = null;
         promoteDialog.Visible = false;
         state = State.Playing;
         EndTurn();
+    }
+
+    private void OnAgentMoveMade(string moveStr)
+    {
+        Move move = new Move(moveStr);
+        MakeMove(move, true);
     }
 }

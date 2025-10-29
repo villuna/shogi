@@ -21,7 +21,7 @@ public partial class Piece : Node3D
 
     public void SetupPiece(PieceType piece, Player player)
     {
-        if (piece == PieceType.King && player == Player.Gote)
+        if (piece == PieceType.King && player == Player.Sente)
         {
             // The gote king (prince) has a different sprite from the sente king, which is stored
             // at the end of the array
