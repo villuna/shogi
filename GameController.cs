@@ -140,7 +140,6 @@ public partial class GameController : Node3D
 
             if (movableSquares.Contains(move.toCoord))
             {
-                GD.Print("Promote?: " + move.promote);
                 MovePiece(s, move.toCoord, agent, move.promote);
             }
         }
@@ -286,7 +285,7 @@ public partial class GameController : Node3D
         // Update the board view
         boardNode.MovePiece(from, to);
 
-        if (movedPiece.CanPromote(to.y))
+        if (movedPiece.CanPromote(to.y) || movedPiece.CanPromote(from.y))
         {
             if (!agent)
             {
