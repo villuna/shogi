@@ -62,16 +62,16 @@ public class PieceData
         string res = "";
         string pieces = "pbrlnsgk";
 
+        if (this.promoted)
+        {
+            res += "+";
+        }
+
         res += pieces[(int)this.piece];
 
         if (this.player == Player.Sente)
         {
             res = res.ToUpper();
-        }
-
-        if (this.promoted)
-        {
-            res += "+";
         }
 
         return res;
@@ -95,6 +95,8 @@ public struct Move
     public Move(string str)
     {
         string pieceChars = "RBGSNLP";
+        PieceType[] pieceTypes = [PieceType.Rook, PieceType.Bishop, PieceType.Gold,
+            PieceType.Silver, PieceType.Knight, PieceType.Lance, PieceType.Pawn];
         string cols = "123456789";
         string rows = "abcdefghi";
 
@@ -110,7 +112,9 @@ public struct Move
             // implementing the GUI part of the program, but when I implemented the engine I
             // realised that USI uses a coordinate system with the y axis flipped. It's easier to
             // fix that here than to change the rest of the program, so that's why.
-            this.toCoord = (str[2] - '1', 10 - (str[3] - 'a'));
+            this.toCoord = (str[2] - '1', 8 - (str[3] - 'a'));
+            int id = pieceChars.IndexOf(str[0]);
+            this.dropType = pieceTypes[id];
         }
         else if (cols.Contains(str[0]))
         {
@@ -123,6 +127,13 @@ public struct Move
             }
             this.fromCoord = (str[0] - '1', 8 - (str[1] - 'a'));
             this.toCoord = (str[2] - '1', 8 - (str[3] - 'a'));
+
+            if (str.Length == 5)
+            {
+                if (str[4] != '+')
+                    throw new ArgumentException("Invalid move notation: " + str);
+                this.promote = true;
+            }
         }
     }
 

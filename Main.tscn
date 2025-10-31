@@ -159,6 +159,7 @@ vertical_alignment = 1
 script = ExtResource("4_cm0pq")
 processPath = "./nanoshogi/target/release/nanoshogi"
 moveTimeMillis = 5000
+targetDepth = 6
 
 [connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
 [connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]

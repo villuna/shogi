@@ -8,6 +8,8 @@ public partial class UsiAgent : Agent
     public String processPath;
     [Export]
     public int moveTimeMillis;
+    [Export]
+    public int targetDepth;
 
     private FileAccess processStdio;
     private FileAccess processStderr;
@@ -69,6 +71,6 @@ public partial class UsiAgent : Agent
     {
         GD.Print("Starting engine from position " + sfenPosition);
         commands.Enqueue("position sfen " + sfenPosition);
-        commands.Enqueue("go movetime " + moveTimeMillis);
+        commands.Enqueue("go movetime " + moveTimeMillis + " depth " + targetDepth);
     }
 }

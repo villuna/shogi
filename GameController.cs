@@ -66,6 +66,8 @@ public partial class GameController : Node3D
 
     public override void _Ready()
     {
+        var m = new Move("R*8h");
+        GD.Print(m.toCoord);
         SetupPieces();
     }
 
@@ -140,6 +142,7 @@ public partial class GameController : Node3D
 
             if (movableSquares.Contains(move.toCoord))
             {
+                GD.Print("Promote?: " + move.promote);
                 MovePiece(s, move.toCoord, agent, move.promote);
             }
         }
@@ -151,7 +154,7 @@ public partial class GameController : Node3D
             }
             if (benches[(int)currentPlayer, (int)dropPiece] <= 0)
             {
-                throw new ArgumentException("Illegal move for current position");
+                throw new ArgumentException("Illegal drop for current position - no pieces in hand");
             }
             var droppableSquares = DroppableSquares(dropPiece);
 
@@ -159,6 +162,14 @@ public partial class GameController : Node3D
             {
                 DropPiece(dropPiece, move.toCoord);
                 EndTurn();
+            }
+            else
+            {
+                foreach ((int x, int y) s in droppableSquares)
+                {
+                    GD.Print("Droppable: " + (char)(s.x + '1') + "" + (char)((8 - s.y) + 'a'));
+                }
+                throw new ArgumentException("Illegal move for current position - cannot drop piece on selected square");
             }
         }
     }
@@ -291,10 +302,11 @@ public partial class GameController : Node3D
                 pieceToPromote = to;
                 state = State.WaitingForPromoteDialog;
             }
-            else if (promote)
+            else
             {
                 // If the agent wants to promote we should just do it immediately without the dialog
-                PromotePiece(to);
+                if (promote)
+                    PromotePiece(to);
                 EndTurn();
             }
         }
