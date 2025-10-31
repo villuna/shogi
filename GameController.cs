@@ -66,8 +66,6 @@ public partial class GameController : Node3D
 
     public override void _Ready()
     {
-        var m = new Move("R*8h");
-        GD.Print(m.toCoord);
         SetupPieces();
     }
 
@@ -165,10 +163,6 @@ public partial class GameController : Node3D
             }
             else
             {
-                foreach ((int x, int y) s in droppableSquares)
-                {
-                    GD.Print("Droppable: " + (char)(s.x + '1') + "" + (char)((8 - s.y) + 'a'));
-                }
                 throw new ArgumentException("Illegal move for current position - cannot drop piece on selected square");
             }
         }
