@@ -235,7 +235,7 @@ vertical_alignment = 1
 
 [node name="USIAgent" type="Node" parent="."]
 script = ExtResource("6_6o7ua")
-processPath = "./nanoshogi/target/release/nanoshogi"
+processPath = "./Engine/nanoshogi"
 moveTimeMillis = 5000
 targetDepth = 6
 
