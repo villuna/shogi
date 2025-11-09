@@ -49,8 +49,6 @@ public partial class Board : Node3D
                 AddChild(square);
             }
         }
-
-        HighlightSquares([(2, 3)]);
     }
 
     // Calculates the position a piece should have given its boardspace coordinate.
