@@ -1,0 +1,249 @@
+[gd_scene load_steps=15 format=3 uid="uid://ccobhykhhbabj"]
+
+[ext_resource type="Script" uid="uid://u64p0om2qyto" path="res://Game/GameController.cs" id="1_g5pn2"]
+[ext_resource type="PackedScene" uid="uid://d3u7c6qcwh0ua" path="res://Board/Board.tscn" id="2_haytw"]
+[ext_resource type="PackedScene" uid="uid://doe371xg6v7to" path="res://Board/Bench.tscn" id="3_3xx61"]
+[ext_resource type="Theme" uid="uid://co1esajlw5jf" path="res://Game/PauseMenuTheme.tres" id="4_q34ae"]
+[ext_resource type="FontFile" uid="uid://bdvohyhn1qrgx" path="res://Fonts/MedodicaRegular.otf" id="5_f77hp"]
+[ext_resource type="Script" uid="uid://0qn12xuiv675" path="res://Agents/UsiAgent.cs" id="6_6o7ua"]
+
+[sub_resource type="Environment" id="Environment_g5pn2"]
+background_mode = 1
+background_color = Color(0.53333336, 0.56078434, 0.81960785, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_lgr22"]
+font = ExtResource("5_f77hp")
+font_size = 60
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fos0i"]
+bg_color = Color(0, 0, 0, 0.19607843)
+
+[sub_resource type="LabelSettings" id="LabelSettings_3dxm6"]
+font = ExtResource("5_f77hp")
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_h2yge"]
+font = ExtResource("5_f77hp")
+font_size = 70
+
+[sub_resource type="LabelSettings" id="LabelSettings_r0du0"]
+font_size = 28
+
+[sub_resource type="LabelSettings" id="LabelSettings_cm0pq"]
+font_size = 80
+
+[sub_resource type="LabelSettings" id="LabelSettings_fos0i"]
+font_size = 36
+
+[node name="Main" type="Node3D" node_paths=PackedStringArray("turnIndicator", "boardNode", "benchNodes", "promoteDialog", "resultDisplay", "pauseMenu", "resultLabel", "resultTypeLabel", "opponent")]
+script = ExtResource("1_g5pn2")
+turnIndicator = NodePath("UI/Turn")
+boardNode = NodePath("Board")
+benchNodes = [NodePath("Benches/SenteBench"), NodePath("Benches/GoteBench")]
+promoteDialog = NodePath("UI/PromoteDialog")
+resultDisplay = NodePath("UI/ResultDisplay")
+pauseMenu = NodePath("UI/PauseMenu")
+resultLabel = NodePath("UI/ResultDisplay/VBoxContainer/ResultLabel")
+resultTypeLabel = NodePath("UI/ResultDisplay/VBoxContainer/ResultTypeLabel")
+opponent = NodePath("USIAgent")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-1, 8.65931e-08, 1.201578e-08, 2.398696e-08, 0.13960524, 0.9902073, 8.406764e-08, 0.9902073, -0.13960524, -0.009483337, 20.366653, -2.4853282)
+environment = SubResource("Environment_g5pn2")
+fov = 44.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.74467105, -0.50004846, 0.44205955, -0.10588957, 0.56542575, 0.8179738, -0.6589784, -0.65593094, 0.36810622, 11.645351, 13.85367, 3.9813251)
+light_energy = 2.0
+shadow_enabled = true
+shadow_opacity = 0.7
+directional_shadow_split_1 = 0.02
+directional_shadow_split_2 = 0.124
+directional_shadow_split_3 = 0.18
+
+[node name="Board" parent="." instance=ExtResource("2_haytw")]
+
+[node name="Benches" type="Node3D" parent="."]
+
+[node name="SenteBench" parent="Benches" instance=ExtResource("3_3xx61")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -10, 0, -4)
+
+[node name="GoteBench" parent="Benches" instance=ExtResource("3_3xx61")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 4)
+player = 1
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="PauseMenu" type="PanelContainer" parent="UI"]
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/PauseMenu"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="PauseButtons" type="PanelContainer" parent="UI/PauseMenu/CenterContainer"]
+layout_mode = 2
+theme = ExtResource("4_q34ae")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/PauseMenu/CenterContainer/PauseButtons"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Paused" type="Label" parent="UI/PauseMenu/CenterContainer/PauseButtons/VBoxContainer"]
+layout_mode = 2
+text = "Paused"
+label_settings = SubResource("LabelSettings_lgr22")
+horizontal_alignment = 1
+
+[node name="Resume" type="Button" parent="UI/PauseMenu/CenterContainer/PauseButtons/VBoxContainer"]
+layout_mode = 2
+text = "Resume"
+
+[node name="Save&Quit" type="Button" parent="UI/PauseMenu/CenterContainer/PauseButtons/VBoxContainer"]
+layout_mode = 2
+text = "Save & Quit"
+
+[node name="Quit" type="Button" parent="UI/PauseMenu/CenterContainer/PauseButtons/VBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[node name="ControlsPanel" type="PanelContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -147.0
+offset_bottom = 48.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_fos0i")
+
+[node name="Controls" type="Label" parent="UI/ControlsPanel"]
+layout_mode = 2
+text = "Esc - Menu"
+label_settings = SubResource("LabelSettings_3dxm6")
+horizontal_alignment = 1
+
+[node name="Turn" type="Label" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -125.0
+offset_top = 11.0
+offset_right = 126.0
+offset_bottom = 73.99999
+grow_horizontal = 2
+text = "CPU is thinking..."
+label_settings = SubResource("LabelSettings_h2yge")
+
+[node name="PromoteDialog" type="Panel" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -191.5
+offset_top = -68.5
+offset_right = 191.5
+offset_bottom = 68.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/PromoteDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Promote?" type="Label" parent="UI/PromoteDialog/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+text = "Promote?"
+label_settings = SubResource("LabelSettings_r0du0")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/PromoteDialog/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6
+alignment = 1
+
+[node name="Yes" type="Button" parent="UI/PromoteDialog/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_font_sizes/font_size = 24
+text = "Yes
+"
+
+[node name="No" type="Button" parent="UI/PromoteDialog/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_font_sizes/font_size = 24
+text = "No"
+
+[node name="ResultDisplay" type="PanelContainer" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/ResultDisplay"]
+layout_mode = 2
+alignment = 1
+
+[node name="ResultLabel" type="Label" parent="UI/ResultDisplay/VBoxContainer"]
+layout_mode = 2
+text = "You Win"
+label_settings = SubResource("LabelSettings_cm0pq")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultTypeLabel" type="Label" parent="UI/ResultDisplay/VBoxContainer"]
+layout_mode = 2
+text = "Checkmate"
+label_settings = SubResource("LabelSettings_fos0i")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="USIAgent" type="Node" parent="."]
+script = ExtResource("6_6o7ua")
+processPath = "./nanoshogi/target/release/nanoshogi"
+moveTimeMillis = 5000
+targetDepth = 6
+
+[connection signal="SquareClicked" from="Board" to="." method="OnBoardSquareClicked"]
+[connection signal="SquareClicked" from="Benches/SenteBench" to="." method="OnBenchSquareClicked"]
+[connection signal="SquareClicked" from="Benches/GoteBench" to="." method="OnBenchSquareClicked"]
+[connection signal="pressed" from="UI/PauseMenu/CenterContainer/PauseButtons/VBoxContainer/Resume" to="." method="OnResumePressed"]
+[connection signal="pressed" from="UI/PauseMenu/CenterContainer/PauseButtons/VBoxContainer/Quit" to="." method="OnQuitPressed"]
+[connection signal="pressed" from="UI/PromoteDialog/VBoxContainer/HBoxContainer/Yes" to="." method="OnPromoteDialogResponse" binds= [true]]
+[connection signal="pressed" from="UI/PromoteDialog/VBoxContainer/HBoxContainer/No" to="." method="OnPromoteDialogResponse" binds= [false]]
+[connection signal="MoveMade" from="USIAgent" to="." method="OnAgentMoveMade"]

@@ -1,0 +1,72 @@
+[gd_scene load_steps=5 format=3 uid="uid://bqt1fg6fya3pl"]
+
+[ext_resource type="Script" uid="uid://cs8r3a8u16cuk" path="res://MainMenu/MainMenu.cs" id="1_fxvm1"]
+[ext_resource type="PackedScene" uid="uid://bfgl7kuav6736" path="res://Piece/Piece.tscn" id="2_2gs5d"]
+[ext_resource type="Theme" uid="uid://co1esajlw5jf" path="res://Game/PauseMenuTheme.tres" id="3_2gs5d"]
+
+[sub_resource type="Environment" id="Environment_kjwba"]
+background_mode = 1
+background_color = Color(0.5322938, 0.5609556, 0.8206644, 1)
+
+[node name="MainMenu" type="Node3D" node_paths=PackedStringArray("pieceModel")]
+script = ExtResource("1_fxvm1")
+pieceModel = NodePath("Piece")
+pieceRotateSpeed = 0.7
+
+[node name="Camera3D" type="Camera3D" parent="."]
+environment = SubResource("Environment_kjwba")
+
+[node name="Piece" parent="." instance=ExtResource("2_2gs5d")]
+transform = Transform3D(0.87326026, 0.3717874, 0.31494537, 0.25546262, 0.20106253, -0.9456811, -0.414916, 0.90628254, 0.080602154, 0.7250751, -0.06383276, -1.8723415)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8581873, 0.039061442, -0.5118484, 0.1948021, 0.8977356, 0.395124, 0.47493863, -0.4387995, 0.7628161, -0.6046703, 1.5054507, 1.1485528)
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_2gs5d")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 0
+offset_left = 132.0
+offset_top = 174.0
+offset_right = 452.0
+offset_bottom = 378.0
+theme_override_constants/separation = 10
+metadata/_edit_group_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="UI/VBoxContainer/MarginContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 80
+text = "NanoShogi!"
+
+[node name="Play" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = "Play the CPU"
+
+[node name="Quit" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[node name="Version Info" type="Label" parent="UI"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -16.0
+offset_right = 40.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "nanoshogi v0.1.0 - made by villuna"
+
+[connection signal="pressed" from="UI/VBoxContainer/Play" to="." method="OnPlayPressed"]
+[connection signal="pressed" from="UI/VBoxContainer/Quit" to="." method="OnQuitPressed"]

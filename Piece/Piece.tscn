@@ -65,11 +65,12 @@ transform = Transform3D(0.5, 0, 0, 0, 0.49982867, 0.013088475, 0, -0.013088475, 
 mesh = SubResource("ArrayMesh_qksr6")
 
 [node name="FrontSprite" type="Sprite3D" parent="Piece" index="0"]
-transform = Transform3D(14, 0, 0, 0, -0.3664775, 13.995204, 0, -13.995203, -0.36647752, 0.055804133, 0.23448785, -0.017269691)
+transform = Transform3D(13, 0, 0, 0, -0.34030053, 12.995545, 0, -12.995545, -0.34030053, 0.055804133, 0.23448785, -0.017269691)
 texture_filter = 0
+texture = ExtResource("5_fgxok")
 
 [node name="BackSprite" type="Sprite3D" parent="Piece" index="1"]
-transform = Transform3D(-13.999999, 1.2239188e-06, 0, 3.2038475e-08, 0.36647746, -13.995205, -1.2234995e-06, -13.995202, -0.36647752, 0.055804133, -0.24697569, -0.028389003)
+transform = Transform3D(-13, 3.8952663e-10, -2.9752222e-08, 2.9752224e-08, 0.34032574, -12.995544, 3.895266e-10, -12.995544, -0.34032574, -0.06754166, -0.24697569, -0.028389003)
 texture_filter = 0
 
 [node name="CountLabelPivot" type="Node3D" parent="Piece" index="2"]

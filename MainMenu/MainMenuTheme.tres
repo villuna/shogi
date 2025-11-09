@@ -1,0 +1,6 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://31ifxyi4q8et"]
+
+[ext_resource type="FontFile" uid="uid://bdvohyhn1qrgx" path="res://Fonts/MedodicaRegular.otf" id="1_1ku1t"]
+
+[resource]
+Label/fonts/font = ExtResource("1_1ku1t")
